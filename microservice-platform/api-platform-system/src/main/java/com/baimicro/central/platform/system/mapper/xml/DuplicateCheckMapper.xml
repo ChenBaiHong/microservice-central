@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baimicro.central.platform.system.mapper.DuplicateCheckMapper">
+
+    <!-- 重复校验 sql语句 -->
+    <select id="duplicateCheckCountSql"
+            resultType="java.lang.Long"
+            parameterType="com.baimicro.central.common.model.DuplicateCheck">
+        SELECT COUNT(*) FROM ${tableName} WHERE ${fieldName} = #{fieldVal} and id != #{dataId}
+    </select>
+
+    <!-- 重复校验 sql语句 -->
+    <select id="duplicateCheckCountSqlNoDataId" resultType="java.lang.Long" parameterType="com.baimicro.central.common.model.DuplicateCheck">
+        SELECT COUNT(*) FROM ${tableName} WHERE ${fieldName} = #{fieldVal}
+    </select>
+
+</mapper>

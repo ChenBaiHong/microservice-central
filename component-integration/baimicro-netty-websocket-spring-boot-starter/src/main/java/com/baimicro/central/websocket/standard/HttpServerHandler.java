@@ -1,0 +1,309 @@
+package com.baimicro.central.websocket.standard;
+
+import com.baimicro.central.websocket.pojo.PojoEndpointServer;
+import com.baimicro.central.websocket.support.WsPathMatcher;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.AttributeKey;
+import io.netty.util.CharsetUtil;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.util.StringUtils;
+
+import java.io.InputStream;
+import java.util.Set;
+
+import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+/**
+ * @program: hospital-cloud-platform
+ * @description: httpServer 处理操作
+ * @author: baiHoo.chen
+ * @create: 2020-04-12
+ **/
+class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private PojoEndpointServer pojoEndpointServer;
+
+    private ServerEndpointConfig config;
+
+    private static ByteBuf faviconByteBuf;
+    private static ByteBuf notFoundByteBuf;
+    private static ByteBuf badRequestByteBuf;
+    private static ByteBuf forbiddenByteBuf;
+    private static ByteBuf internalServerErrorByteBuf;
+
+    static {
+        faviconByteBuf = buildStaticRes("/favicon.ico");
+        notFoundByteBuf = buildStaticRes("/public/error/404.html");
+        badRequestByteBuf = buildStaticRes("/public/error/400.html");
+        forbiddenByteBuf = buildStaticRes("/public/error/403.html");
+        internalServerErrorByteBuf = buildStaticRes("/public/error/500.html");
+        if (notFoundByteBuf == null) {
+            notFoundByteBuf = buildStaticRes("/public/error/4xx.html");
+        }
+        if (badRequestByteBuf == null) {
+            badRequestByteBuf = buildStaticRes("/public/error/4xx.html");
+        }
+        if (forbiddenByteBuf == null) {
+            forbiddenByteBuf = buildStaticRes("/public/error/4xx.html");
+        }
+        if (internalServerErrorByteBuf == null) {
+            internalServerErrorByteBuf = buildStaticRes("/public/error/5xx.html");
+        }
+    }
+
+    private static ByteBuf buildStaticRes(String resPath) {
+        try {
+            InputStream inputStream = HttpServerHandler.class.getResourceAsStream(resPath);
+            if (inputStream != null) {
+                int available = inputStream.available();
+                if (available != 0) {
+                    byte[] bytes = new byte[available];
+                    inputStream.read(bytes);
+                    return ByteBufAllocator.DEFAULT.buffer(bytes.length).writeBytes(bytes);
+                }
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * springboot 支持改造
+     *
+     * @param pojoEndpointServer
+     * @param config
+     * @return
+     */
+    public HttpServerHandler(PojoEndpointServer pojoEndpointServer, ServerEndpointConfig config) {
+        this.pojoEndpointServer = pojoEndpointServer;
+        this.config = config;
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+        System.out.println("执行流程结-开始");
+        try {
+            handleHttpRequest(ctx, msg);
+        } catch (TypeMismatchException e) {
+            FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST);
+            sendHttpResponse(ctx, msg, res);
+            e.printStackTrace();
+        } catch (Exception e) {
+            FullHttpResponse res;
+            if (internalServerErrorByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR, internalServerErrorByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR);
+            }
+            sendHttpResponse(ctx, msg, res);
+            e.printStackTrace();
+        }
+        System.out.println("执行流程结-结束");
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        pojoEndpointServer.doOnError(ctx.channel(), cause);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        pojoEndpointServer.doOnClose(ctx.channel());
+        super.channelInactive(ctx);
+    }
+
+    private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
+        FullHttpResponse res;
+        // Handle a bad request.
+        if (!req.decoderResult().isSuccess()) {
+            if (badRequestByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST, badRequestByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST);
+            }
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
+
+        // Allow only GET methods.
+        if (req.method() != GET) {
+            if (forbiddenByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN, forbiddenByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN);
+            }
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
+
+        HttpHeaders headers = req.headers();
+        String host = headers.get(HttpHeaderNames.HOST);
+        if (StringUtils.isEmpty(host)) {
+            if (forbiddenByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN, forbiddenByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN);
+            }
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
+
+        //TODO 这段代码需要注释：
+        /**
+         * 原因 不适用集群分布式下场景判断
+         */
+        /**if (!StringUtils.isEmpty(pojoEndpointServer.getHost())
+         && !pojoEndpointServer.getHost().equals("0.0.0.0")
+         && !pojoEndpointServer.getHost().equals(host.split(":")[0])
+         ) {
+         if (forbiddenByteBuf != null) {
+         res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN, forbiddenByteBuf.retainedDuplicate());
+         } else {
+         res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN);
+         }
+         sendHttpResponse(ctx, req, res);
+         return;
+         }*/
+
+        QueryStringDecoder decoder = new QueryStringDecoder(req.uri());
+        String path = decoder.path();
+        if ("/favicon.ico".equals(path)) {
+            if (faviconByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, OK, faviconByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
+            }
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
+
+        Channel channel = ctx.channel();
+
+        //path match
+        String pattern = null;
+        Set<WsPathMatcher> pathMatcherSet = pojoEndpointServer.getPathMatcherSet();
+        for (WsPathMatcher pathMatcher : pathMatcherSet) {
+            if (pathMatcher.matchAndExtract(decoder, channel)) {
+                pattern = pathMatcher.getPattern();
+                break;
+            }
+        }
+
+        if (pattern == null) {
+            if (notFoundByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND, notFoundByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
+            }
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
+
+        if (!req.headers().contains(UPGRADE) || !req.headers().contains(SEC_WEBSOCKET_KEY) || !req.headers().contains(SEC_WEBSOCKET_VERSION)) {
+            if (forbiddenByteBuf != null) {
+                res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN, forbiddenByteBuf.retainedDuplicate());
+            } else {
+                res = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN);
+            }
+            sendHttpResponse(ctx, req, res);
+            return;
+        }
+
+        String subprotocols = null;
+
+        if (pojoEndpointServer.hasBeforeHandshake(channel, pattern)) {
+            /*
+            pojoEndpointServer.doBeforeHandshake(channel, req, pattern);
+            if (!channel.isActive()) {
+                return;
+            }
+            */
+            res = pojoEndpointServer.doBeforeHandshakeReturn(channel, req, pattern);
+            if (res != null && !HttpResponseStatus.OK.equals(res.status())) {
+                sendHttpResponse(ctx, req, res);
+                return;
+            }
+            if (!channel.isActive()) {
+                return;
+            }
+            AttributeKey<String> subprotocolsAttrKey = AttributeKey.valueOf("subprotocols");
+            if (channel.hasAttr(subprotocolsAttrKey)) {
+                subprotocols = ctx.channel().attr(subprotocolsAttrKey).get();
+            }
+        }
+
+        // Handshake
+        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+                getWebSocketLocation(req), subprotocols, true, config.getMaxFramePayloadLength());
+
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
+        if (handshaker == null) {
+            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
+        } else {
+            ChannelPipeline pipeline = ctx.pipeline();
+            // pipeline.remove("httpServerHandler");
+            pipeline.remove(ctx.name());
+            if (config.getReaderIdleTimeSeconds() != 0 || config.getWriterIdleTimeSeconds() != 0 || config.getAllIdleTimeSeconds() != 0) {
+                pipeline.addLast(new IdleStateHandler(config.getReaderIdleTimeSeconds(), config.getWriterIdleTimeSeconds(), config.getAllIdleTimeSeconds()));
+            }
+            if (config.getUseCompressionHandler()) {
+                pipeline.addLast(new WebSocketServerCompressionHandler());
+            }
+            pipeline.addLast(new WebSocketFrameAggregator(Integer.MAX_VALUE));
+
+            /**
+             * 添加自定义的 websocket 处理 handler
+             */
+            pipeline.addLast(new WebSocketServerHandler(pojoEndpointServer));
+            String finalPattern = pattern;
+            handshaker.handshake(channel, req).addListener(future -> {
+                if (future.isSuccess()) {
+                    pojoEndpointServer.doOnOpen(channel, req, finalPattern);
+                } else {
+                    handshaker.close(channel, new CloseWebSocketFrame());
+                }
+            });
+        }
+    }
+
+    private static void sendHttpResponse(
+            ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
+        // Generate an error page if response getStatus code is not OK (200).
+        int statusCode = res.status().code();
+        if (statusCode != OK.code() && res.content().readableBytes() == 0) {
+            ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
+            res.content().writeBytes(buf);
+            buf.release();
+        }
+        HttpUtil.setContentLength(res, res.content().readableBytes());
+
+        // Send the response and close the connection if necessary.
+        ChannelFuture f = ctx.channel().writeAndFlush(res);
+        if (!HttpUtil.isKeepAlive(req) || statusCode != 200) {
+            f.addListener(ChannelFutureListener.CLOSE);
+        }
+    }
+
+    private static String getWebSocketLocation(FullHttpRequest req) {
+        String location = req.headers().get(HttpHeaderNames.HOST) + req.uri();
+        return "ws://" + location;
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("HttpServerHandler channel 激活");
+    }
+}

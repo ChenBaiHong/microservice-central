@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: user-platform-server
+# dubbo 配置项
+dubbo:
+  application:
+    id: user-platform-server
+    name: user-platform-server
+  protocol:
+    name: dubbo
+    port: 20881
+  scan:
+    base-packages: com.baimicro.central.user.service.impl
+  provider:
+    timeout: 10000 # 配置全局调用服务超时时间，dubbo默认是1s，肯定不够用呀
+    retries: 3 # 重试3次
+    delay: -1

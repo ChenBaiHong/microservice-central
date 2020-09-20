@@ -1,0 +1,197 @@
+// when add a new dependency, gradle not download that package
+// just when module capsule-components.gradle use this dependency, then download and build project
+
+ext {
+    ver = [
+            baimicro     : [
+                    rootVersion: '2.0.1'
+            ],
+            spring       : [
+                    boot           : '2.2.8.RELEASE',
+                    cloud          : 'Hoxton.SR6',
+                    security_oauth2: '2.3.8.RELEASE',
+                    security_jwt   : '1.1.0.RELEASE',
+                    social_security: '1.1.6.RELEASE',
+                    elasticsearch  : '3.2.7.RELEASE',
+                    framework      : '5.2.7.RELEASE'
+            ],
+            elasticsearch: [
+                    version: '7.8.0'
+            ],
+            apache       : [
+                    commons_collections4  : '4.4',
+                    commons_long3         : '3.8.1',
+                    commons_configuration2: '2.7',
+                    commons_io            : '2.6',
+                    commons_pool2         : '2.6.2',
+                    commons_beanutils     : '1.9.4',
+                    poi                   : '4.1.1',
+                    velocity              : '1.7',
+                    httpclient            : '4.5.10'
+            ],
+            alibaba      : [
+                    fastjson             : '1.2.70',
+                    druid_spring         : '1.1.22',
+                    transmittable_thread : '2.11.5',
+                    aliyun_sdk_oss       : '3.8.1',
+                    taobao_fastdfs_client: '1.26.7',
+                    spring_cloud         : '2.2.1.RELEASE',
+                    spring_dubbo         : '2.7.3',
+                    fastdfs_client       : '1.27.2'
+            ],
+            jeecg        : [
+                    autopoi: '1.0.3'
+            ],
+            binarywang   : [
+                    binarywang_wx: '3.4.4.B'
+            ],
+            fasterxml    : [
+                    jackson: '2.9.8'
+            ],
+            swagger      : [
+                    springfox   : '2.9.2',
+                    bootstrap_ui: '1.8.7',
+                    mg_ui       : '1.0.6'
+            ],
+            txlcn        : [
+                    version: '5.0.2.RELEASE'
+            ],
+            baomidou     : [
+                    mybatis_plus: '3.3.1',
+            ],
+            netty        : [
+                    version: '4.1.45.Final'
+            ],
+            qiniu        : [
+                    qiniu_java_sdk: '7.2.28'
+            ],
+            javax        : [
+                    servlet_api   : '4.0.1',
+                    validation_api: '2.0.1.Final'
+            ],
+            projectlombok: [
+                    lombok: '1.18.10'
+            ],
+            kryo         : [
+                    version: '4.0.1'
+            ],
+            datasource   : [
+                    mysql: '8.0.13'
+            ],
+            common       : [
+                    sharding_jdbc_spring: '3.1.0',
+                    spring_boot_admin   : '2.2.3',
+                    spring_boot_redisson: '3.11.5',
+                    jjwt                : '0.9.1',
+                    easy_captcha        : '1.6.2',
+                    hutool_all          : '5.1.4',
+                    easypoi_base        : '4.1.3',
+                    userAgentUtils      : '1.21',
+                    lettuce_core        : '5.2.2.RELEASE',
+                    banner              : '1.0.2',
+                    hessian             : '4.0.51',
+                    userAgent           : '1.21',
+                    reactor_core        : '3.2.14.RELEASE',
+                    mybatis_spring_boot : '2.1.2'
+            ],
+            plugin       : [
+                    gradle_docker        : '6.4.0',
+                    gradle_release       : '2.8.1',
+                    spring_boot_gradle   : '2.2.8.RELEASE',
+                    dependency_management: '1.0.9.RELEASE',
+            ]
+    ]
+
+    libs = [
+            "spring-boot-dependencies"                 : "org.springframework.boot:spring-boot-dependencies:$ver.spring.boot",
+            "spring-boot-starter-test"                 : "org.springframework.boot:spring-boot-starter-test:$ver.spring.boot",
+            "spring-cloud-dependencies"                : "org.springframework.cloud:spring-cloud-dependencies:$ver.spring.cloud",
+            "spring-security-oauth2"                   : "org.springframework.security.oauth:spring-security-oauth2:$ver.spring.security_oauth2",
+            "spring-security-jwt"                      : "org.springframework.security:spring-security-jwt:$ver.spring.security_jwt",
+            "spring-social-security"                   : "org.springframework.social:spring-social-security:$ver.spring.social_security",
+            "spring-data-elasticsearch"                : "org.springframework.data:spring-data-elasticsearch:$ver.spring.elasticsearch",
+
+            "commons-collections4"                     : "org.apache.commons:commons-collections4:$ver.apache.commons_collections4",
+            "commons-lang3"                            : "org.apache.commons:commons-lang3:$ver.apache.commons_long3",
+            "commons-configuration2"                   : "org.apache.commons:commons-configuration2:$ver.apache.commons_configuration2",
+            "poi"                                      : "org.apache.poi:poi:$ver.apache.poi",
+            "poi-ooxml"                                : "org.apache.poi:poi-ooxml:$ver.apache.poi",
+            "velocity"                                 : "org.apache.velocity:velocity:$ver.apache.velocity",
+            "httpclient"                               : "org.apache.httpcomponents:httpclient:$ver.apache.httpclient",
+            "commons-io"                               : "commons-io:commons-io:$ver.apache.commons_io",
+            "commons-beanutils"                        : "commons-beanutils:commons-beanutils:$ver.apache.commons_beanutils",
+            "commons-pool2"                            : "org.apache.commons:commons-pool2:$ver.apache.commons_pool2",
+
+            "spring-cloud-alibaba-dependencies"        : "com.alibaba.cloud:spring-cloud-alibaba-dependencies:$ver.alibaba.spring_cloud",
+            "spring-cloud-starter-alibaba-sidecar"     : "com.alibaba.cloud:spring-cloud-starter-alibaba-sidecar:$ver.alibaba.spring_cloud",
+            "spring-cloud-starter-alibaba-nacos-config": "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:$ver.alibaba.spring_cloud",
+            "druid-spring-boot-starter"                : "com.alibaba:druid-spring-boot-starter:$ver.alibaba.druid_spring",
+            "fastjson"                                 : "com.alibaba:fastjson:$ver.alibaba.fastjson",
+            "aliyun-sdk-oss"                           : "com.aliyun.oss:aliyun-sdk-oss:$ver.alibaba.aliyun_sdk_oss",
+            "transmittable-thread-local"               : "com.alibaba:transmittable-thread-local:$ver.alibaba.transmittable_thread",
+            "fastdfs-client"                           : "com.github.tobato:fastdfs-client:$ver.alibaba.fastdfs_client",
+            "dubbo-dependencies-bom"                   : "org.apache.dubbo:dubbo-dependencies-bom:$ver.alibaba.spring_dubbo",
+
+            "jackson-core"                             : "com.fasterxml.jackson.core:jackson-core:$ver.fasterxml.jackson",
+            "jackson-databind"                         : "com.fasterxml.jackson.core:jackson-databind:$ver.fasterxml.jackson",
+            "jackson-annotations"                      : "com.fasterxml.jackson.core:jackson-annotations:$ver.fasterxml.jackson",
+
+            "springfox-swagger2"                       : "io.springfox:springfox-swagger2:$ver.swagger.springfox",
+            "springfox-bean-validators"                : "io.springfox:springfox-bean-validators:$ver.swagger.springfox",
+            "springfox-swagger-ui"                     : "io.springfox:springfox-swagger-ui:$ver.swagger.springfox",
+            "swagger-bootstrap-ui"                     : "com.github.xiaoymin:swagger-bootstrap-ui:$ver.swagger.bootstrap_ui",
+            "swagger-mg-ui"                            : "com.zyplayer:swagger-mg-ui:$ver.swagger.mg_ui",
+
+            "txlcn-tm"                                 : "com.codingapi.txlcn:txlcn-tm:$ver.txlcn.version",
+            "txlcn-tc"                                 : "com.codingapi.txlcn:txlcn-tc:$ver.txlcn.version",
+            "txlcn-txmsg-netty"                        : "com.codingapi.txlcn:txlcn-txmsg-netty:$ver.txlcn.version",
+            "sharding-jdbc-spring-boot-starter"        : "io.shardingsphere:sharding-jdbc-spring-boot-starter:$ver.common.sharding_jdbc_spring",
+
+            // mybatis-plus
+            "mybatis-plus"                             : "com.baomidou:mybatis-plus:$ver.baomidou.mybatis_plus",
+            "mybatis-plus-boot-starter"                : "com.baomidou:mybatis-plus-boot-starter:$ver.baomidou.mybatis_plus",
+            "mybatis-plus-extension"                   : "com.baomidou:mybatis-plus-extension:$ver.baomidou.mybatis_plus",
+            "mybatis-spring-boot-starter"              : "org.mybatis.spring.boot:mybatis-spring-boot-starter:$ver.common.mybatis_spring_boot",
+
+            "qiniu-java-sdk"                           : "com.qiniu:qiniu-java-sdk:$ver.qiniu.qiniu_java_sdk",
+
+            "javax.servlet-api"                        : "javax.servlet:javax.servlet-api:$ver.javax.servlet_api",
+
+            "lombok"                                   : "org.projectlombok:lombok:$ver.projectlombok.lombok",
+
+            "spring-boot-admin-starter-server"         : "de.codecentric:spring-boot-admin-starter-server:$ver.common.spring_boot_admin",
+            "redisson-spring-boot-starter"             : "org.redisson:redisson-spring-boot-starter:$ver.common.spring_boot_redisson",                                      // 在Redis基础上的一个Java实用工具包
+            "jjwt"                                     : "io.jsonwebtoken:jjwt:$ver.common.jjwt",
+            "easy-captcha"                             : "com.github.whvcse:easy-captcha:$ver.common.easy_captcha",                         // 图形验证码工具
+            "hutool-all"                               : "cn.hutool:hutool-all:$ver.common.hutool_all",                                     // hutool java工具类库
+            "easypoi-base"                             : "cn.afterturn:easypoi-base:$ver.common.easypoi_base",
+            "lettuce-core"                             : "io.lettuce:lettuce-core:$ver.common.lettuce_core",
+            "banner"                                   : "com.nepxion:banner:$ver.common.banner",
+
+            "netty-codec-http"                         : "io.netty:netty-codec-http:$ver.netty.version",
+            "netty-handler"                            : "io.netty:netty-handler:$ver.netty.version",
+            "netty-all"                                : "io.netty:netty-all:$ver.netty.version",
+            "kryo"                                     : "com.esotericsoftware:kryo:$ver.kryo.version",                                     // 使用kryo序列化框架所需依赖
+            "kryo-shaded"                              : "com.esotericsoftware:kryo-shaded:$ver.kryo.version",
+            "hessian"                                  : "com.caucho:hessian:$ver.common.hessian",
+            "UserAgentUtils"                           : "eu.bitwalker:UserAgentUtils:$ver.common.userAgent",
+
+            "autopoi"                                  : "org.jeecgframework:autopoi:$ver.jeecg.autopoi",
+            "autopoi-web"                              : "org.jeecgframework:autopoi-web:$ver.jeecg.autopoi",
+
+            "weixin-java-miniapp"                      : "com.github.binarywang:weixin-java-miniapp:$ver.binarywang.binarywang_wx",
+            "weixin-java-cp"                           : "com.github.binarywang:weixin-java-cp:$ver.binarywang.binarywang_wx",
+            "weixin-java-pay"                          : "com.github.binarywang:weixin-java-pay:$ver.binarywang.binarywang_wx",
+
+            "reactor-core"                             : "io.projectreactor:reactor-core:$ver.common.reactor_core",
+
+            "gradle-docker-plugin"                     : "com.bmuschko:gradle-docker-plugin:$ver.plugin.gradle_docker",
+            // "gradle-docker-plugin"                     : "se.transmode.gradle:gradle-docker:1.2",
+            // 发布工程的插件
+            "gradle-release"                           : "net.researchgate:gradle-release:$ver.plugin.gradle_release",
+            "spring-boot-gradle-plugin"                : "org.springframework.boot:spring-boot-gradle-plugin:$ver.plugin.spring_boot_gradle",
+            "dependency-management-plugin"             : "io.spring.gradle:dependency-management-plugin:$ver.plugin.dependency_management"
+    ]
+
+}
+

@@ -1,0 +1,15 @@
+dependencies {
+
+    // 编译并打包进 jar 中，不提供依赖传递
+    implementation('javax.validation:validation-api')
+    implementation('org.springframework.security:spring-security-core')
+
+    // 不只编译 并也打包进 jar 中，也提供依赖传递。
+    compile libs['mybatis-plus-boot-starter']
+    compile('com.fasterxml.jackson.core:jackson-core')
+    compile('com.fasterxml.jackson.core:jackson-annotations')
+    compile('com.fasterxml.jackson.core:jackson-databind')
+    compile libs['autopoi']
+    compile libs['autopoi-web']
+
+}

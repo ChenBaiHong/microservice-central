@@ -1,0 +1,11 @@
+dependencies {
+
+    // 只编译并不打包进 jar 中，也不提供依赖传递。当引入当前模块jar时，需要提供 "仅仅编译" 的jar
+    implementation('io.projectreactor:reactor-core')
+    implementation(libs['spring-social-security'])
+
+    // 不只编译 并也打包进 jar 中，也提供依赖传递。
+    compile(libs['mybatis-plus'])
+    compile('com.fasterxml.jackson.core:jackson-annotations')
+    compile('com.fasterxml.jackson.core:jackson-databind')
+}

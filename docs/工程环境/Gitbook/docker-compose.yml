@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+  gitbook:
+    image: swr.cn-north-1.myhuaweicloud.com/baihoo/gitbook:latest
+    # 指定容器名称
+    container_name: gitbook
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载 -v A:B ,A指宿主机位置，B指容器位置
+      - ./gitbook:/gitbook
+    # 访问端口
+    ports:
+      - "4000:4000"
+    environment:
+      # 指定时区
+      TZ: "Asia/Shanghai"
+    command: gitbook install && gitbook build && gitbook serve
+    privileged: true # 给予授权访问主机读写权限

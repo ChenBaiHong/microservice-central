@@ -1,0 +1,52 @@
+apply plugin: "org.springframework.boot"
+apply plugin: "com.bmuschko.docker-spring-boot-application"
+
+def archiveName = 'scaner-logger-started'
+def version = "${ver.baimicro.rootVersion}"
+
+bootJar {
+    archiveBaseName = archiveName
+    archiveVersion = version
+    manifest {
+        attributes 'Start-Class': 'com.baimicro.central.LogApp'
+    }
+}
+
+dependencies {
+    implementation project(':central-config')
+    implementation project(':search-center:search-client')
+    implementation project(':component-integration:baimicro-common-spring-boot-starter')
+    implementation project(':component-integration:baimicro-ribbon-spring-boot-starter')
+    implementation project(':component-integration:baimicro-swagger2-spring-boot-starter')
+
+    implementation('com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery')
+    implementation(libs['spring-boot-admin-starter-server'])
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom libs['spring-cloud-dependencies']
+        mavenBom libs['spring-cloud-alibaba-dependencies']
+    }
+}
+docker {
+    registryCredentials {
+        url = "${DOCKER_HUB_URL}"
+        username = "${DOCKER_USERNAME}"
+        password = "${DOCKER_PASSWORD}"
+    }
+    springBootApplication {
+        maintainer = 'baihoo.chen "baihoo.chen@hotmail.com"'
+        baseImage = 'swr.ap-southeast-1.myhuaweicloud.com/baihoo/oraclejdk:8u261'
+        ports = [17200]
+        images = ["${DOCKER_DOMAIN}/microservice-central/${archiveName}:${version}"]
+        jvmArgs = ['-javaagent:/skywalking-agent/skywalking-agent.jar','-server', '-XX:MetaspaceSize=128m', '-XX:MaxMetaspaceSize=128m', '-Xms1024m', '-Xmx1024m', '-Xmn256m', '-Xss256k', '-XX:SurvivorRatio=8','-XX:+UseConcMarkSweepGC', '-XX:+PrintGCDetails']
+    }
+    dockerCreateDockerfile {
+        environmentVariable 'SPRING_PROFILES_ACTIVE', SRPING_PROFILE
+    }
+}

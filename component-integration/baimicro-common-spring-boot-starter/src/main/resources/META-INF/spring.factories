@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.common.filter.TenantFilter,\
+com.baimicro.central.common.filter.TraceFilter

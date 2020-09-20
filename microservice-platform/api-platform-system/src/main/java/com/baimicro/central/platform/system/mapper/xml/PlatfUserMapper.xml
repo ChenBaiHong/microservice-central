@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baimicro.central.platform.system.mapper.PlatfUserMapper">
+
+    <!-- 根据用户名查询 -->
+    <select id="getUserByName" resultType="com.baimicro.central.platform.pojo.entity.PlatfUser">
+        select * from  platf_user  where username = #{username} and del_flag = '0'
+    </select>
+
+    <!-- 根据部门Id查询 -->
+    <select id="getUserByDepId" resultType="com.baimicro.central.platform.pojo.entity.PlatfUser">
+        select * from platf_user where del_flag = '0' and id in (select user_id from platf_user_depart where dep_id=#{departId})
+        <if test="username!=null and username!=''">
+            and username = #{username}
+        </if>
+    </select>
+
+
+
+    <!-- 根据角色Id查询 -->
+    <select id="getUserByRoleId" resultType="com.baimicro.central.platform.pojo.entity.PlatfUser">
+        select * from platf_user where del_flag = '0' and id in (select user_id from platf_user_role where role_id=#{roleId})
+        <if test="username!=null and username!=''">
+            and username = #{username}
+        </if>
+    </select>
+
+    <!--  修改用户部门code -->
+    <update id="updateUserDepart">
+        UPDATE platf_user SET org_code = #{orgCode} where username = #{username}
+    </update>
+
+    <!-- 根据手机号查询 -->
+    <select id="getUserByPhone"  resultType="com.baimicro.central.platform.pojo.entity.PlatfUser">
+        select * from  platf_user  where phone = #{phone} and del_flag = '0'
+    </select>
+
+    <!-- 根据邮箱查询用户信息 -->
+    <select id="getUserByEmail" resultType="com.baimicro.central.platform.pojo.entity.PlatfUser">
+        select * from  platf_user  where email = #{email} and del_flag = '0'
+    </select>
+
+    <!-- SQL片段：getUserByOrgCode 的 FROM 和 WHERE 部分 -->
+    <sql id="getUserByOrgCodeFromSql">
+        FROM
+        platf_depart
+        -- 关联查询出该部门有哪些用户
+        INNER JOIN platf_user_depart ON platf_user_depart.dep_id = platf_depart.id
+        -- 关联查询出该用户的详细信息
+        INNER JOIN platf_user ON platf_user.id = platf_user_depart.user_id
+        WHERE
+        platf_user.del_flag = "0" AND platf_depart.org_code LIKE '${orgCode}%'
+
+        <if test="userParams != null">
+            <if test="userParams.realname != null and userParams.realname != ''">
+                AND platf_user.realname LIKE '%${userParams.realname}%'
+            </if>
+            <if test="userParams.workNo != null and userParams.workNo != ''">
+                AND platf_user.work_no LIKE '%${userParams.workNo}%'
+            </if>
+        </if>
+    </sql>
+
+</mapper>

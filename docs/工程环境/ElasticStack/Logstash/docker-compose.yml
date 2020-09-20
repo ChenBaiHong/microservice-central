@@ -1,0 +1,25 @@
+version: "3.5"
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.8.0
+    container_name: logstash
+    user: root
+    networks:
+      - elastic
+    restart: on-failure
+    volumes:
+      - /home/data/logstash/patterns:/opt/logstash/patterns
+      - /home/data/logstash/config:/usr/share/logstash/config
+      - /home/data/logstash/pipeline:/usr/share/logstash/pipeline
+    environment:
+      - XPACK_MONITORING_ELASTICSEARCH_URL=http://es-node-01:9200
+      - XPACK_MONITORING_ELASTICSEARCH_USERNAME=elastic
+      - XPACK_MONITORING_ELASTICSEARCH_PASSWORD=XbneuJCsLxBf6SSz3BKa
+    ports:
+      - 9600:9600
+      - 5044:5044
+networks:
+  elastic:
+    external: true
+    # https://www.elastic.co/guide/en/beats/metricbeat/current/running-on-docker.html#monitoring-host
+    name: elasticsearch-net

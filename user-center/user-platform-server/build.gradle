@@ -1,0 +1,51 @@
+apply plugin: "org.springframework.boot"
+apply plugin: "com.bmuschko.docker-spring-boot-application"
+
+def archiveName = 'user-platform-server'
+def version = "${ver.baimicro.rootVersion}"
+
+bootJar {
+    archiveBaseName = archiveName
+    archiveVersion = version
+    manifest {
+        attributes 'Start-Class': 'com.baimicro.central.PlatfUserServerApp'
+    }
+}
+// 将src文件夹中的资源文件同时打包
+processResources {
+    from('src/main/java') {
+        include '**/*.xml'
+    }
+}
+dependencies {
+    implementation project(':central-config')
+    implementation project(':user-center:user-api')
+    implementation project(':component-integration:baimicro-common-core')
+    implementation project(':component-integration:baimicro-db-spring-boot-starter')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation "org.apache.dubbo:dubbo-spring-boot-starter:${ver.alibaba.spring_dubbo}"
+    implementation "org.apache.dubbo:dubbo-spring-boot-actuator:${ver.alibaba.spring_dubbo}"
+    implementation 'mysql:mysql-connector-java'
+    implementation(libs['spring-social-security'])
+}
+
+docker {
+    registryCredentials {
+        url = "${DOCKER_HUB_URL}"
+        username = "${DOCKER_USERNAME}"
+        password = "${DOCKER_PASSWORD}"
+    }
+    springBootApplication {
+        maintainer = 'baihoo.chen "baihoo.chen@hotmail.com"'
+        baseImage = 'swr.ap-southeast-1.myhuaweicloud.com/baihoo/oraclejdk:8u261'
+        ports = [18080,20881]
+        images = ["${DOCKER_DOMAIN}/microservice-central/${archiveName}:${version}"]
+        jvmArgs = ['-javaagent:/skywalking-agent/skywalking-agent.jar','-server', '-XX:MetaspaceSize=128m', '-XX:MaxMetaspaceSize=128m', '-Xms1024m', '-Xmx1024m', '-Xmn256m', '-Xss256k', '-XX:SurvivorRatio=8','-XX:+UseConcMarkSweepGC', '-XX:+PrintGCDetails']
+    }
+    dockerCreateDockerfile {
+        environmentVariable 'SPRING_PROFILES_ACTIVE', SRPING_PROFILE
+    }
+}

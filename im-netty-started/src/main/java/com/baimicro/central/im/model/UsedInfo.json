@@ -1,0 +1,19 @@
+{
+  "code": 0,
+  "message": {
+    "msgId": "",
+    "index": "",
+    "clientId": "wx-patient-minapp",
+    "fromId": 2,
+    "username": "陈柏宏",
+    "avatar": "https://wx.qlogo.cn/mmopen/vi_32/Utf1xvuHnuxPAk00Z4obqDZehyRwSBaQgPEb5bw7RHdaHSmEhkBQtyUE4fuhbOBBjRHjHm7358WX162su2n6eA/132",
+    "toId": 3,
+    "toClientId": "wx-doctor-minapp",
+    "chatType": 0,
+    "msgContent": "的萨福",
+    "msgType": 1,
+    "isRetracement": false,
+    "timestamp": 1587378657373,
+    "sendDate": "2020-04-20T10:30:57.373Z"
+  }
+}

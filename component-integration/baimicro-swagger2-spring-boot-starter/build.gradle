@@ -1,0 +1,7 @@
+dependencies {
+    compile ('org.springframework.boot:spring-boot-starter')
+    compile libs['springfox-swagger2']
+    compile libs['springfox-swagger-ui']
+
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+}

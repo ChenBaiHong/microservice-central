@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.db.config.TenantAutoConfigure,\
+com.baimicro.central.db.config.MybatisPlusAutoConfigure

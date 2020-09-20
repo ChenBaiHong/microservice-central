@@ -1,0 +1,15 @@
+server:
+  port: 28001
+spring:
+  application:
+    name: microservice-platform-started
+his:
+  cloud:
+    audit-log:
+      enabled: true
+      logType: logger # 日志记录类型(logger/redis/db/es)
+#      datasource:
+#        jdbcUrl: jdbc:mysql://${his.cloud.datasource.ip}:33306/logger-center?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false
+#        username: ${his.cloud.datasource.username}
+#        password: ${his.cloud.datasource.password}
+#        driverClassName: com.mysql.cj.jdbc.Driver

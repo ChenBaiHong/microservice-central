@@ -1,0 +1,11 @@
+dependencies {
+    compile project(':component-integration:baimicro-common-core')
+    compile('com.alibaba.cloud:spring-cloud-starter-alibaba-sentinel')
+    compile('com.alibaba.csp:sentinel-datasource-nacos')
+
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign')
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+    implementation('org.springframework:spring-webflux')
+
+    compileOnly('org.springframework.boot:spring-boot-starter-web')
+}

@@ -1,0 +1,23 @@
+dependencies {
+    compile project(':component-integration:baimicro-common-core')
+    compile("org.elasticsearch.client:elasticsearch-rest-high-level-client:$ver.elasticsearch.version")
+    compile("org.elasticsearch.client:transport:$ver.elasticsearch.version")
+    compile("org.elasticsearch.client:elasticsearch-rest-client:$ver.elasticsearch.version")
+    compile("org.elasticsearch:elasticsearch:$ver.elasticsearch.version")
+    compile("org.elasticsearch.plugin:transport-netty4-client:$ver.elasticsearch.version")
+    compile(libs['spring-data-elasticsearch']) {
+        exclude group: 'org.elasticsearch.client', module: 'elasticsearch-rest-high-level-client'
+        exclude group: 'org.elasticsearch.client', module: 'transport'
+        exclude group: 'org.elasticsearch.client', module: 'elasticsearch-rest-client'
+        exclude group: 'org.elasticsearch', module: 'elasticsearch'
+        exclude group: 'org.elasticsearch.plugin', module: 'transport-netty4-client'
+    }
+
+    compile libs['commons-beanutils']
+
+    implementation('org.springframework.boot:spring-boot-autoconfigure')
+    implementation('org.springframework.cloud:spring-cloud-context')
+    implementation "org.springframework:spring-context"
+
+    compileOnly('org.springframework.boot:spring-boot-configuration-processor')
+}

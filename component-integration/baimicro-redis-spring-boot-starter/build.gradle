@@ -1,0 +1,10 @@
+dependencies {
+    compile project(':component-integration:baimicro-common-core')
+    compile('org.springframework.boot:spring-boot-starter-data-redis') {
+        exclude group: 'io.lettuce', module: 'lettuce-core'
+    }
+    compile(libs['lettuce-core'])
+
+    implementation(libs['redisson-spring-boot-starter'])
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+}

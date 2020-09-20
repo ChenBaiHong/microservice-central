@@ -1,0 +1,36 @@
+package com.baimicro.central.discovery;
+
+import com.alibaba.cloud.nacos.discovery.NacosDiscoveryClient;
+import com.baimicro.central.discovery.properties.MyNacosDiscoveryProperties;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/**
+ * @program: hospital-cloud-platform
+ * @description: websocket 客户端，构建注册 到阿里巴巴 nacos 服务列表中
+ * @author: baiHoo.chen
+ * @create: 2020-04-14
+ **/
+@Component
+public class DiscoveryClientWS implements SmartInitializingSingleton {
+
+
+    private NacosDiscoveryClient nacosDiscoveryClient;
+
+    @Value("${his.cloud.netty.websocket.host}")
+    private String host;
+    @Value("${his.cloud.netty.websocket.port}")
+    private Integer port;
+
+    @Autowired
+    private MyNacosDiscoveryProperties myNacosDiscoveryProperties;
+
+    @Override
+    public void afterSingletonsInstantiated() {
+        myNacosDiscoveryProperties.setPort(port);
+        myNacosDiscoveryProperties.setIp(host);
+        nacosDiscoveryClient = new NacosDiscoveryClient(myNacosDiscoveryProperties);
+    }
+}

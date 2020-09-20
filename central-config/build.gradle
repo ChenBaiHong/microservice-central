@@ -1,0 +1,4 @@
+
+dependencies {
+    compile 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config'
+}

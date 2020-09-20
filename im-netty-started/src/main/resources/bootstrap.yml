@@ -1,0 +1,14 @@
+server:
+  port: 29010
+spring:
+  application:
+    name: im-netty-started
+his:
+  cloud:
+    netty:
+      websocket:
+        reader-idle-time-seconds: 60
+        writer-idle-time-seconds: 60
+        all-idle-time-seconds: 120
+        # 注意这里需要配置 IP 地址，不要 和 配置 server.address 一样，否则会启动端口冲突
+        host: 127.0.0.1

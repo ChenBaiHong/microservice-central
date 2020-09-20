@@ -1,0 +1,31 @@
+# https://github.com/shazChaudhry/docker-elastic/blob/master/metricbeat-docker-compose.yml
+version: "3.5"
+services:
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.8.0
+    container_name: docker-metricbeat
+    user: root
+    networks:
+      - elastic
+    restart: on-failure
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/data/metricbeat/data:/usr/share/metricbeat/data
+      - /home/data/metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+    environment:
+      - ELASTICSEARCH_HOST=http://es-node-01:9200
+      - KIBANA_HOST=http://kibana:5601
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=XbneuJCsLxBf6SSz3BKa
+    ports:
+      - 5066:5066
+    # disable strict permission checks
+    command: ["--strict.perms=false", "-system.hostfs=/hostfs"]
+networks:
+  elastic:
+    external: true
+    # https://www.elastic.co/guide/en/beats/metricbeat/current/running-on-docker.html#monitoring-host
+    name: elasticsearch-net

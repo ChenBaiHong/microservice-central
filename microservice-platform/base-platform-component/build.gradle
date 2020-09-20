@@ -1,0 +1,8 @@
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    compile(project(':microservice-platform:base-platform-pojo'))
+    compile(project(':component-integration:baimicro-common-core'))
+    compile libs['weixin-java-miniapp']
+    compile libs['weixin-java-cp']
+    compile libs['commons-beanutils']
+}

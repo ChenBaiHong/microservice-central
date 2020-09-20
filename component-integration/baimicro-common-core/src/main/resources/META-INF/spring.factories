@@ -1,0 +1,6 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.baimicro.central.common.config.BannerInitializer
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.common.feign.fallback.UserServiceFallbackFactory,\
+com.baimicro.central.common.config.HttpclientConfig,\
+com.baimicro.central.common.lock.LockAspect

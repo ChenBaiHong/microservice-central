@@ -1,0 +1,17 @@
+version: '3.5'
+services:
+  redis:
+    image: redis:6.0.5
+    container_name: docker-redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - /home/data/redis/data:/data
+      - /home/data/redis/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    privileged: true # 给予授权访问主机读写权限
+networks:
+  custom_net:
+    external:
+      name: overlay-net

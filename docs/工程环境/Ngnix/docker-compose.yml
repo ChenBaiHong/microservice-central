@@ -1,0 +1,22 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:stable
+    container_name: nginx
+    restart: always
+    ports:
+      - 10080:80
+      - 10443:443
+    volumes:
+      - /data/docker/nginx/conf:/etc/nginx
+      - /data/docker/nginx/logs:/var/log/nginx
+      - /data/docker/nginx/html:/usr/share/nginx/html
+    networks:
+      # 调用自定义网络
+      - custom_net
+networks:
+  # 容器内声明自定义网络
+  custom_net:
+    # docker 外部创建的网络，本文【2.2】处所创建声明的
+    external:
+      name: overlay-net

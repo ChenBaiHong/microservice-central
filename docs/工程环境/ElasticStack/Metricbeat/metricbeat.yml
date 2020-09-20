@@ -1,0 +1,123 @@
+# https://github.com/elastic/beats/blob/master/metricbeat/metricbeat.reference.yml
+http:
+  #启用HTTP端点以允许从外部收集监视数据
+  enabled: true
+  #默认情况下，metrics 在端口5066上公开。
+  port: 5066
+#-------------------------------- Autodiscovery -------------------------------
+# Autodiscover allows you to detect changes in the system and spawn new modules as they happen.
+metricbeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    # Reload module configs as they change:
+    reload.enabled: false
+metricbeat.autodiscover:
+  providers:
+    - type: docker
+      # https://www.elastic.co/guide/en/beats/metricbeat/current/configuration-autodiscover-hints.html
+      hints.enabled: true
+metricbeat.modules:
+  #------------------------------- System Module -------------------------------
+  # 系统模块整体报告指标
+  - module: system
+    metricsets: ["cpu", "load", "memory", "network", "process", "process_summary", "core", "diskio", "socket"]
+    processes: ['.*']
+    process.include_top_n:
+      by_cpu: 5
+      by_memory: 5
+    period: 10s
+    cpu.metrics:   ["percentages","normalized_percentages"]
+    core.metrics: ["percentages"]
+  # 系统网络接口报告指标
+  - module: system
+    metricsets: [network]
+    interfaces: [em1]
+  - module: system
+    period: 15m
+    metricsets:
+      - uptime
+
+  #------------------------------- Docker Module -------------------------------
+  - module: docker
+    metricsets: ["container", "cpu", "diskio", "healthcheck", "info", "memory", "network"]
+    hosts: ["unix:///var/run/docker.sock"]
+    period: 10s
+  #------------------------------- MySQL Module -------------------------------
+  - module: mysql
+    metricsets: ["status"]
+    hosts: ["tcp(192.168.1.88:33306)/"]
+    username: root
+    password: baihoo!@#321
+  #------------------------------- elasticsearch Module -------------------------------
+  - module: elasticsearch
+    metricsets:
+      - ccr
+      - cluster_stats
+      - index
+      - index_recovery
+      - index_summary
+      - ml_job
+      - node_stats
+      - shard
+      - enrich
+    period: 10s
+    hosts: ["http://es-node-01:9200", "http://es-node-02:9200" , "http://es-node-03:9200"]
+    username: "elastic"
+    password: "XbneuJCsLxBf6SSz3BKa"
+    xpack.enabled: true
+  #------------------------------- kibana Module -------------------------------
+  - module: kibana
+    metricsets:
+      - stats
+    period: 10s
+    hosts: ["kibana:5601"]
+    #basepath: ""
+    username: "elastic"
+    password: "XbneuJCsLxBf6SSz3BKa"
+    xpack.enabled: true
+  #------------------------------- beat Module -------------------------------
+  - module: beat
+    metricsets:
+      - stats
+      - state
+    period: 10s
+    hosts: ["http://docker-metricbeat:5066","http://docker-filebeat:5067"]
+    xpack.enabled: true
+  #------------------------------- logstash Module -------------------------------
+  - module: logstash
+    metricsets: ["node", "node_stats"]
+    enabled: true
+    period: 10s
+    hosts: ["logstash:9600"]
+    xpack.enabled: true
+#================================ Processors ===================================
+processors:
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_locale:
+      format: offset
+  - add_host_metadata:
+      netinfo.enabled: true
+
+#========================== Elasticsearch output ===============================
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["http://es-node-01:9200", "http://es-node-02:9200" , "http://es-node-03:9200"]
+  username: "elastic"
+  password: "XbneuJCsLxBf6SSz3BKa"
+
+#============================== Dashboards =====================================
+setup.dashboards:
+  enabled: true
+
+#============================== Kibana =========================================
+setup.kibana:
+  host: "kibana:5601"
+  username: "elastic"
+  password: "XbneuJCsLxBf6SSz3BKa"
+
+#============================== Xpack Monitoring ===============================
+# 禁用 metricbeat 监视指标的默认集合
+xpack.monitoring:
+  enabled: false
+  elasticsearch:

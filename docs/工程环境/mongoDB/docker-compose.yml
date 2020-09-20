@@ -1,0 +1,22 @@
+# docker-compose.yml
+version: '3.5'
+services:
+  mongodb-server:
+    image: mongo:4.4.0
+    container_name: docker-mongodb
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin!@#321
+    volumes:
+      - /home/data/mongodb/setup:/docker-entrypoint-initdb.d
+      - /home/data/mongodb/db:/data/db
+    ports:
+      - 27017:27017
+      - 27019:27019
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    external:
+      name: overlay-net

@@ -1,0 +1,16 @@
+spring:
+  elasticsearch:
+    rest:
+      uris: ${his.cloud.elasticsearch.uris}
+      username: ${his.cloud.elasticsearch.username}
+      password: ${his.cloud.elasticsearch.password}
+his:
+  cloud:
+    indices:
+      show: sys-log-*,mysql-slowlog-*,point-log-*,audit-log-*
+    swagger:
+      enabled: true
+      title: 搜索中心
+      description: 搜索中心接口文档
+      version: 1.0
+      base-package: com.baimicro.central.search.controller

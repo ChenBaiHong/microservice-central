@@ -1,0 +1,18 @@
+dependencies {
+    implementation 'org.slf4j:slf4j-api'
+    implementation "org.springframework:spring-web"
+    implementation "org.springframework:spring-core"
+    implementation "org.springframework:spring-beans"
+    implementation "org.springframework:spring-aop"
+    implementation "org.springframework:spring-context"
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation libs['fastjson']
+    implementation libs['kryo']
+    implementation libs['kryo-shaded']
+    implementation libs['hessian']
+
+    compile(libs['netty-codec-http'])
+    compile(libs['netty-handler'])
+}

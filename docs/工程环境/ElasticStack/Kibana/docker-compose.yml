@@ -1,0 +1,19 @@
+version: '3.5'
+services:
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.8.0
+    container_name: kibana
+    ports:
+      - 5601:5601
+    restart: always
+    environment:
+      ELASTICSEARCH_URL: http://es-node-01:9200
+      ELASTICSEARCH_HOSTS: http://es-node-01:9200
+    volumes:
+      - /home/data/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    external:
+      name: elasticsearch-net

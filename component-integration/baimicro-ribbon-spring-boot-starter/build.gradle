@@ -1,0 +1,12 @@
+dependencies {
+
+    compile project(':component-integration:baimicro-common-core')
+
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign')
+    implementation('org.springframework.cloud:spring-cloud-starter-netflix-ribbon')
+    implementation('org.apache.httpcomponents:httpclient')
+    implementation('com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery')
+
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+    implementation(libs['javax.servlet-api'])
+}

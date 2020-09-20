@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baimicro.central.user.mapper.PlatfPermissionMapper">
+
+    <sql id="fragment_findSimplePermission">
+        SELECT p.id         AS id,
+               p.parent_id  AS parentId,
+               p.name       AS name,
+               p.perms      AS perms,
+               p.perms_type AS permsType
+        FROM platf_permission p,
+             platf_role r,
+             platf_role_permission rp
+        WHERE p.id = rp.permission_id
+          AND r.id = rp.role_id
+          AND p.perms IS NOT NULL
+          AND p.perms != ''
+    </sql>
+    <select id="findSimplePermissionByRoleIds" resultType="com.baimicro.central.common.model.AppPerm">
+        <include refid="fragment_findSimplePermission"/>
+        AND rp.role_id in
+        <foreach collection="roleIds" index="index" item="roleId"
+                 open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+    <select id="findSimplePermissionByRoleCodes" resultType="com.baimicro.central.common.model.AppPerm">
+        <include refid="fragment_findSimplePermission"/>
+        AND r.role_code in
+        <foreach collection="roleCodes" index="index" item="roleCode"
+                 open="(" separator="," close=")">
+            #{roleCode}
+        </foreach>
+    </select>
+    <sql id="fragment_findAllPermission">
+            SELECT p.id             AS id,
+               p.parent_id      as parentId,
+               p.name           as name,
+               p.url            as url,
+               p.component      as component,
+               p.component_name as componentName,
+               p.redirect       as redirect,
+               p.menu_type      as menuType,
+               p.perms          as perms,
+               p.perms_type     as permsType,
+               p.sort_no        as sortNo,
+               p.always_show    as alwaysShow,
+               p.icon           as icon,
+               p.is_route       as isRoute,
+               p.is_leaf        as isLeaf,
+               p.keep_alive     as keepAlive,
+               p.hidden         as hidden,
+               p.rule_flag      as ruleFlag,
+               p.status         as status,
+               p.p.internal_or_external as internalOrExternal
+        FROM platf_permission p,
+             platf_role r,
+             platf_role_permission rp
+        WHERE p.id = rp.permission_id
+          AND r.id = rp.role_id
+    </sql>
+    <select id="findAllPermissionByRoleIds" resultType="com.baimicro.central.common.model.AppPerm">
+        <include refid="fragment_findAllPermission"/>
+        AND rp.role_id in
+        <foreach collection="roleIds" index="index" item="roleId"
+                 open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+    <select id="findAllPermissionByRoleCodes" resultType="com.baimicro.central.common.model.AppPerm">
+        <include refid="fragment_findAllPermission"/>
+        AND r.role_code in
+        <foreach collection="roleCodes" index="index" item="roleCode"
+                 open="(" separator="," close=")">
+            #{roleCode}
+        </foreach>
+    </select>
+</mapper>

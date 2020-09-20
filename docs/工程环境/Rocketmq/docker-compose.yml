@@ -1,0 +1,63 @@
+version: '3.5'
+services:
+  rmqnamesrv:
+    image: foxiswho/rocketmq:server-4.7.0
+    container_name: rmqnamesrv
+    ports:
+    - 9876:9876
+    # volumes 配置由（:）分隔的三个字段组成，<卷名>:<容器路径>:<选项列表>
+    # <卷名> ： 第一个字段，主机上的文件或目录
+    # <容器路径> ： 第二个字段，容器中的文件或目录
+    # <选项列表> ： 第三个字段，可选，且用逗号分隔，如：ro，consistent，delegated，cached，z 和 Z
+    volumes:
+    - ./data/logs:/opt/logs
+    - ./data/store:/opt/store
+    networks:
+      rmq:
+        aliases:
+        - rmqnamesrv
+
+  rmqbroker:
+    image: foxiswho/rocketmq:broker-4.7.0
+    container_name: rmqbroker
+    ports:
+    - 10909:10909
+    - 10911:10911
+    # volumes 配置由（:）分隔的三个字段组成，<卷名>:<容器路径>:<选项列表>
+    # <卷名> ： 第一个字段，主机上的文件或目录
+    # <容器路径> ： 第二个字段，容器中的文件或目录
+    # <选项列表> ： 第三个字段，可选，且用逗号分隔，如：ro，consistent，delegated，cached，z 和 Z
+    volumes:
+    - ./data/logs:/opt/logs
+    - ./data/store:/opt/store
+    - ./conf/broker.conf:/home/rocketmq/rocketmq-4.7.0/conf/broker.conf
+    environment:
+      NAMESRV_ADDR: "rmqnamesrv:9876"
+      JAVA_OPTS: " -Duser.home=/opt"
+      JAVA_OPT_EXT: "-server -Xms128m -Xmx128m -Xmn128m"
+    command: mqbroker -c /home/rocketmq/rocketmq-4.7.0/conf/broker.conf
+    depends_on:
+    - rmqnamesrv
+    networks:
+      rmq:
+        aliases:
+        - rmqbroker
+
+  rmqconsole:
+    image: styletang/rocketmq-console-ng
+    container_name: rmqconsole
+    ports:
+    - 8080:8080
+    environment:
+      JAVA_OPTS: "-Drocketmq.namesrv.addr=rmqnamesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false"
+    depends_on:
+    - rmqnamesrv
+    networks:
+      rmq:
+        aliases:
+        - rmqconsole
+
+networks:
+  rmq:
+    name: rmq
+    driver: bridge

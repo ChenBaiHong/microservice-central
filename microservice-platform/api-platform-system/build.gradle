@@ -1,0 +1,17 @@
+dependencies {
+    implementation(project(':component-integration:baimicro-redis-spring-boot-starter'))
+    implementation(project(':component-integration:baimicro-log-spring-boot-starter'))
+    implementation(project(':component-integration:baimicro-common-util'))
+
+    implementation(project(':user-center:user-api'))
+    implementation project(':microservice-platform:base-platform-component')
+
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.security:spring-security-core')
+}
+//将src文件夹中的资源文件同时打包
+processResources {
+    from('src/main/java') {
+        include '**/*.xml'
+    }
+}

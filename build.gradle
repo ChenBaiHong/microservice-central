@@ -1,0 +1,126 @@
+allprojects {
+    group 'com.baimicro.central'
+    version = "${ver.baimicro.rootVersion}"
+    apply from: "${rootDir}/dependency.gradle"
+    apply plugin: 'maven'
+    ext.gradleScriptDir = "${rootProject.projectDir}/gradle"
+    ext.apiDocsDir = "${rootProject.projectDir}/docs"
+    // 获取本地仓库路径
+    ext.localRepositoryPath = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+
+    // 配置 spring profile
+    ext.SRPING_PROFILE="pre"
+
+    // 发布私服仓库配置
+    ext.MAVEN_REPO_RELEASE_URL = "http://nexus3.chenbaihoo.com/repository/bairepos-release/"
+    ext.MAVEN_REPO_SNAPSHOT_URL = "http://nexus3.chenbaihoo.com/repository/bairepos-snapshot/"
+    ext.MAVEN_DEPLOY_USER = "ArtLangdon"
+    ext.MAVEN_DEPLOY_PASSWORD = "123456"
+
+    // 发布 docker 私服仓库地址，采用华为云容器镜像服务
+    ext.DOCKER_DOMAIN = "swr.ap-southeast-1.myhuaweicloud.com"
+    ext.DOCKER_HUB_URL = "http://$DOCKER_DOMAIN"
+    ext.DOCKER_USERNAME = "ap-southeast-1@XSFMSFYAW5J7PYHUC89J"
+    ext.DOCKER_PASSWORD = "1ff5fcd2aa0de1883aaea602a00be9d0b1a4c833d62918c2ffe5d138d67b5913"
+}
+
+buildscript {
+    apply from: "${rootDir}/dependency.gradle"
+    // 2.1 配置依赖加载仓库
+    repositories {
+        mavenLocal()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://plugins.gradle.org/m2/' }
+        mavenCentral()
+        jcenter { url = 'https://maven.aliyun.com/repository/jcenter' }
+        jcenter()
+        gradlePluginPortal()
+
+    }
+    // 项目依赖配置
+    dependencies {
+        /**
+         * classpath 作用：声明插件类路径，为在编译代码时提供使用
+         */
+        // docker 插件
+        classpath libs['gradle-docker-plugin']
+        // 发布工程插件
+        classpath libs['gradle-release']
+        classpath libs['spring-boot-gradle-plugin']
+        classpath libs['dependency-management-plugin']
+    }
+}
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish' //发布到maven 库中的插件
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = 1.8
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+    apply from: "${rootDir}/dependency.gradle"
+
+    configurations {
+        compileOnly {
+            // 编译排除 annotationProcessor 修饰依赖
+            extendsFrom annotationProcessor
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        maven { url = "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url = "https://plugins.gradle.org/m2/" }
+        jcenter()
+        gradlePluginPortal()
+    }
+    dependencies {
+        implementation libs['commons-lang3']
+        implementation libs['commons-collections4']
+        //lombok
+        annotationProcessor libs['lombok']
+        compileOnly libs['lombok']
+        testAnnotationProcessor libs['lombok']
+        testCompileOnly libs['lombok']
+    }
+    dependencyManagement {
+        /**
+         * 再三注意引入 POM 工程顺序，否则会出现版本覆盖
+         */
+        imports {
+            mavenBom libs['spring-cloud-alibaba-dependencies']
+            mavenBom libs['spring-cloud-dependencies']
+            mavenBom libs['spring-boot-dependencies']
+            /**
+             * 注意：dubbo-dependencies-bom 的 POM 文件引入 Spring 版本是 4.3.16 与我们的 Spring-boot 的 POM 文件的 Spring 版本 5.2.7 冲突，因此注释掉
+             */
+            // mavenBom libs['dubbo-dependencies-bom']
+        }
+    }
+    def file = getProjectDir()
+    if (file != null && (file.getName().contains("baimicro-") || file.getName() == "central-config")) {
+        //上传jar包到私服
+        uploadArchives {
+            repositories.mavenDeployer {
+                snapshotRepository(url: MAVEN_REPO_SNAPSHOT_URL) {//快照
+                    authentication(userName: MAVEN_DEPLOY_USER, password: MAVEN_DEPLOY_PASSWORD)
+                }
+                repository(url: MAVEN_REPO_RELEASE_URL) {//RELEASE
+                    authentication(userName: MAVEN_DEPLOY_USER, password: MAVEN_DEPLOY_PASSWORD)
+                }
+                pom.project {
+                    version =  "${ver.baimicro.rootVersion}"
+                    artifactId = file.getName()
+                    groupId =  rootProject.group
+                    description = '微服务中心平台组件'
+                }
+            }
+        }
+    }
+}

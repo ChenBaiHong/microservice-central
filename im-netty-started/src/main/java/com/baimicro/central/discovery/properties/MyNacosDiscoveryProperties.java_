@@ -1,0 +1,374 @@
+package com.baimicro.central.discovery.properties;
+
+import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
+import com.alibaba.nacos.api.NacosFactory;
+import com.alibaba.nacos.api.naming.NamingMaintainFactory;
+import com.alibaba.nacos.api.naming.NamingMaintainService;
+import com.alibaba.nacos.api.naming.NamingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.*;
+
+/**
+ * @program: hospital-cloud-platform
+ * @description: 自定义 nacos 客户端发现服务配置
+ * @author: baiHoo.chen
+ * @create: 2020-04-14
+ **/
+@ConfigurationProperties("spring.cloud.nacos.discovery")
+public class MyNacosDiscoveryProperties extends NacosDiscoveryProperties {
+
+    private static final Logger log = LoggerFactory.getLogger(NacosDiscoveryProperties.class);
+    private String serverAddr;
+    private String endpoint;
+    private String namespace;
+    private long watchDelay = 30000L;
+    private String logName;
+    @Value("${spring.cloud.nacos.discovery.service:${his.cloud.application.name:}}")
+    private String service;
+    private float weight = 1.0F;
+    private String clusterName = "DEFAULT";
+    private String group = "DEFAULT_GROUP";
+    private String namingLoadCacheAtStart = "false";
+    private Map<String, String> metadata = new HashMap();
+    private boolean registerEnabled = true;
+    private String ip;
+    private String networkInterface = "";
+    private int port = -1;
+    private boolean secure = false;
+    private String accessKey;
+    private String secretKey;
+    private Integer heartBeatInterval;
+    private Integer heartBeatTimeout;
+    private Integer ipDeleteTimeout;
+    @Autowired
+    private InetUtils inetUtils;
+    @Autowired
+    private Environment environment;
+    private static NamingService namingService;
+    private static NamingMaintainService namingMaintainService;
+
+    public MyNacosDiscoveryProperties() {
+    }
+
+    @PostConstruct
+    public void init() throws SocketException {
+        this.metadata.put("preserved.register.source", "SPRING_CLOUD");
+        if (this.secure) {
+            this.metadata.put("secure", "true");
+        }
+
+        this.serverAddr = Objects.toString(this.serverAddr, "");
+        if (this.serverAddr.endsWith("/")) {
+            this.serverAddr = this.serverAddr.substring(0, this.serverAddr.length() - 1);
+        }
+
+        this.endpoint = Objects.toString(this.endpoint, "");
+        this.namespace = Objects.toString(this.namespace, "");
+        this.logName = Objects.toString(this.logName, "");
+        if (StringUtils.isEmpty(this.ip)) {
+            if (StringUtils.isEmpty(this.networkInterface)) {
+                this.ip = this.inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();
+            } else {
+                NetworkInterface netInterface = NetworkInterface.getByName(this.networkInterface);
+                if (null == netInterface) {
+                    throw new IllegalArgumentException("no such interface " + this.networkInterface);
+                }
+
+                Enumeration inetAddress = netInterface.getInetAddresses();
+
+                while (inetAddress.hasMoreElements()) {
+                    InetAddress currentAddress = (InetAddress) inetAddress.nextElement();
+                    if (currentAddress instanceof Inet4Address && !currentAddress.isLoopbackAddress()) {
+                        this.ip = currentAddress.getHostAddress();
+                        break;
+                    }
+                }
+
+                if (StringUtils.isEmpty(this.ip)) {
+                    throw new RuntimeException("cannot find available ip from network interface " + this.networkInterface);
+                }
+            }
+        }
+
+        this.overrideFromEnv(this.environment);
+    }
+
+    public String getEndpoint() {
+        return this.endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public String getNamespace() {
+        return this.namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getLogName() {
+        return this.logName;
+    }
+
+    public void setLogName(String logName) {
+        this.logName = logName;
+    }
+
+    public void setInetUtils(InetUtils inetUtils) {
+        this.inetUtils = inetUtils;
+    }
+
+    public float getWeight() {
+        return this.weight;
+    }
+
+    public void setWeight(float weight) {
+        this.weight = weight;
+    }
+
+    public String getClusterName() {
+        return this.clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public String getService() {
+        return this.service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
+    }
+
+    public boolean isRegisterEnabled() {
+        return this.registerEnabled;
+    }
+
+    public void setRegisterEnabled(boolean registerEnabled) {
+        this.registerEnabled = registerEnabled;
+    }
+
+    public String getIp() {
+        return this.ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getNetworkInterface() {
+        return this.networkInterface;
+    }
+
+    public void setNetworkInterface(String networkInterface) {
+        this.networkInterface = networkInterface;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public boolean isSecure() {
+        return this.secure;
+    }
+
+    public void setSecure(boolean secure) {
+        this.secure = secure;
+    }
+
+    public Map<String, String> getMetadata() {
+        return this.metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
+
+    public String getServerAddr() {
+        return this.serverAddr;
+    }
+
+    public void setServerAddr(String serverAddr) {
+        this.serverAddr = serverAddr;
+    }
+
+    public String getAccessKey() {
+        return this.accessKey;
+    }
+
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
+
+    public String getSecretKey() {
+        return this.secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public Integer getHeartBeatInterval() {
+        return this.heartBeatInterval;
+    }
+
+    public void setHeartBeatInterval(Integer heartBeatInterval) {
+        this.heartBeatInterval = heartBeatInterval;
+    }
+
+    public Integer getHeartBeatTimeout() {
+        return this.heartBeatTimeout;
+    }
+
+    public void setHeartBeatTimeout(Integer heartBeatTimeout) {
+        this.heartBeatTimeout = heartBeatTimeout;
+    }
+
+    public Integer getIpDeleteTimeout() {
+        return this.ipDeleteTimeout;
+    }
+
+    public void setIpDeleteTimeout(Integer ipDeleteTimeout) {
+        this.ipDeleteTimeout = ipDeleteTimeout;
+    }
+
+    public String getNamingLoadCacheAtStart() {
+        return this.namingLoadCacheAtStart;
+    }
+
+    public void setNamingLoadCacheAtStart(String namingLoadCacheAtStart) {
+        this.namingLoadCacheAtStart = namingLoadCacheAtStart;
+    }
+
+    public long getWatchDelay() {
+        return this.watchDelay;
+    }
+
+    public void setWatchDelay(long watchDelay) {
+        this.watchDelay = watchDelay;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String toString() {
+        return "NacosDiscoveryProperties{serverAddr='" + this.serverAddr + '\'' + ", endpoint='" + this.endpoint + '\'' + ", namespace='" + this.namespace + '\'' + ", watchDelay=" + this.watchDelay + ", logName='" + this.logName + '\'' + ", service='" + this.service + '\'' + ", weight=" + this.weight + ", clusterName='" + this.clusterName + '\'' + ", group='" + this.group + '\'' + ", namingLoadCacheAtStart='" + this.namingLoadCacheAtStart + '\'' + ", metadata=" + this.metadata + ", registerEnabled=" + this.registerEnabled + ", ip='" + this.ip + '\'' + ", networkInterface='" + this.networkInterface + '\'' + ", port=" + this.port + ", secure=" + this.secure + ", accessKey='" + this.accessKey + '\'' + ", secretKey='" + this.secretKey + '\'' + ", heartBeatInterval=" + this.heartBeatInterval + ", heartBeatTimeout=" + this.heartBeatTimeout + ", ipDeleteTimeout=" + this.ipDeleteTimeout + '}';
+    }
+
+    public void overrideFromEnv(Environment env) {
+        if (StringUtils.isEmpty(this.getServerAddr())) {
+            String serverAddr = env.resolvePlaceholders("${spring.cloud.nacos.discovery.server-addr:}");
+            if (StringUtils.isEmpty(serverAddr)) {
+                serverAddr = env.resolvePlaceholders("${spring.cloud.nacos.server-addr:}");
+            }
+
+            this.setServerAddr(serverAddr);
+        }
+
+        if (StringUtils.isEmpty(this.getNamespace())) {
+            this.setNamespace(env.resolvePlaceholders("${spring.cloud.nacos.discovery.namespace:}"));
+        }
+
+        if (StringUtils.isEmpty(this.getAccessKey())) {
+            this.setAccessKey(env.resolvePlaceholders("${spring.cloud.nacos.discovery.access-key:}"));
+        }
+
+        if (StringUtils.isEmpty(this.getSecretKey())) {
+            this.setSecretKey(env.resolvePlaceholders("${spring.cloud.nacos.discovery.secret-key:}"));
+        }
+
+        if (StringUtils.isEmpty(this.getLogName())) {
+            this.setLogName(env.resolvePlaceholders("${spring.cloud.nacos.discovery.log-name:}"));
+        }
+
+        if (StringUtils.isEmpty(this.getClusterName())) {
+            this.setClusterName(env.resolvePlaceholders("${spring.cloud.nacos.discovery.cluster-name:}"));
+        }
+
+        if (StringUtils.isEmpty(this.getEndpoint())) {
+            this.setEndpoint(env.resolvePlaceholders("${spring.cloud.nacos.discovery.endpoint:}"));
+        }
+
+        if (StringUtils.isEmpty(this.getGroup())) {
+            this.setGroup(env.resolvePlaceholders("${spring.cloud.nacos.discovery.group:}"));
+        }
+
+    }
+
+    public NamingService namingServiceInstance() {
+        if (null != namingService) {
+            return namingService;
+        } else {
+            try {
+                namingService = NacosFactory.createNamingService(this.getNacosProperties());
+            } catch (Exception var2) {
+                log.error("create naming service error!properties={},e=,", this, var2);
+                return null;
+            }
+
+            return namingService;
+        }
+    }
+
+    public NamingMaintainService namingMaintainServiceInstance() {
+        if (null != namingMaintainService) {
+            return namingMaintainService;
+        } else {
+            try {
+                namingMaintainService = NamingMaintainFactory.createMaintainService(this.getNacosProperties());
+            } catch (Exception var2) {
+                log.error("create naming service error!properties={},e=,", this, var2);
+                return null;
+            }
+
+            return namingMaintainService;
+        }
+    }
+
+    private Properties getNacosProperties() {
+        Properties properties = new Properties();
+        properties.put("serverAddr", this.serverAddr);
+        properties.put("namespace", this.namespace);
+        properties.put("com.alibaba.nacos.naming.log.filename", this.logName);
+        if (this.endpoint.contains(":")) {
+            int index = this.endpoint.indexOf(":");
+            properties.put("endpoint", this.endpoint.substring(0, index));
+            properties.put("endpointPort", this.endpoint.substring(index + 1));
+        } else {
+            properties.put("endpoint", this.endpoint);
+        }
+
+        properties.put("accessKey", this.accessKey);
+        properties.put("secretKey", this.secretKey);
+        properties.put("clusterName", this.clusterName);
+        properties.put("namingLoadCacheAtStart", this.namingLoadCacheAtStart);
+        return properties;
+    }
+}

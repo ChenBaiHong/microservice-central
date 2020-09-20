@@ -1,0 +1,30 @@
+# docker-compose 部署样例文件
+version: "3"
+services:
+  gateway-started:
+    image: swr.ap-southeast-1.myhuaweicloud.com/microservice-central/gateway-started:2.0.1
+    # 指定容器名称
+    container_name: baimicro-gateway-started
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs:/logs
+      # SkyWalking 链路追踪代理类
+      - ./skywalking-agent.jar:/skywalking-agent.jar
+    # 访问端口
+    ports:
+      - "17001:17001"
+    env_file:
+      - ./.env
+    environment:
+      # Java 运行调优参数
+      - JAVA_OPTS=-${javaagent_path} -D${skywalking_agent_servicename} -D${skywalking_collector_service} -Xms512m -Xmx512m
+      # 指定时区
+      - TZ="Asia/Shanghai"
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    external: true
+    name: microservice-net

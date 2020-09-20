@@ -1,0 +1,11 @@
+{
+  "debug": true,
+  "experimental": false,
+  "registry-mirrors": [
+    "https://1uo3kkyh.mirror.aliyuncs.com",
+    "https://registry.docker-cn.com"
+  ],
+  "insecure-registries": [
+    "harbor.chenbaihoo.com"
+  ]
+}

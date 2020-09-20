@@ -1,0 +1,56 @@
+#========================== Filebeat filebeat ==============================
+filebeat.inputs:
+  # ======== 配置启动的微服务应用日志路径
+  - type: log
+    enabled: true
+    paths:
+      - /Users/baihooSRC2/Project-Program02/baike-company-project/logs/application/*/*.log
+    exclude_lines: ['\sDEBUG\s\d']
+    exclude_files: ['sc-admin.*.log$']
+    fields:
+      docType: sys-log
+      project: microservice-central
+    multiline:
+      pattern: '^\[\S+:\S+:\d{2,}] '
+      negate: true
+      match: after
+  # ======== 配置自定义的埋点日志路径
+  - type: log
+    enabled: true
+    paths:
+      - /Users/baihooSRC2/Project-Program02/baike-company-project/logs/point/*.log
+    fields:
+      docType: point-log
+      project: microservice-central
+  # ======== 配置审计日志路径
+  - type: log
+    enabled: true
+    paths:
+      - /Users/baihooSRC2/Project-Program02/baike-company-project/logs/audit/*.log
+    fields:
+      docType: audit-log
+      project: microservice-central
+  # ======== 配置慢日志 SQL 路径
+  - type: log
+    enabled: true
+    paths:
+      - /Users/baihooSRC1/dockerProgramFiles/mysql/log/mysql-slow.log
+    fields:
+      docType: mysqlslowlogs
+    exclude_lines: ['^\# Time']
+    multiline:
+      pattern: '^\# Time|^\# User'
+      negate: true
+      match: after
+#========================== logstash output ===============================
+output.logstash:
+  hosts: ["192.168.1.88:5044"]
+  bulk_max_size: 2048
+#============================== Dashboards =====================================
+setup.dashboards:
+  enabled: true
+#============================== Kibana =========================================
+setup.kibana:
+  host: "192.168.1.88:5601"
+  username: "elastic"
+  password: "XbneuJCsLxBf6SSz3BKa"

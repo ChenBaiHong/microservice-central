@@ -1,0 +1,173 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          lowerCaseServiceId: true
+          enabled: true
+      routes:
+        # 用户 oauth2 鉴权认证服务
+        - id: auth
+          uri: lb://oauth-server-started
+          predicates:
+            - Path=/api-uaa/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+        - id: auth-login-page
+          uri: lb://oauth-server-started
+          predicates:
+            - Path=/login.html
+          filters:
+            - PreserveHostHeader
+        - id: auth-login-process
+          uri: lb://oauth-server-started
+          predicates:
+            - Path=/user/login
+          filters:
+            - PreserveHostHeader
+        - id: auth-login-token
+          uri: lb://oauth-server-started
+          predicates:
+            - Path=/oauth/token
+          filters:
+            - PreserveHostHeader
+        - id: auth-login-authorize
+          uri: lb://oauth-server-started
+          predicates:
+            - Path=/oauth/authorize
+          filters:
+            - PreserveHostHeader
+        - id: auth-check-process
+          uri: lb://oauth-server-started
+          predicates:
+            - Path=/oauth/check_token
+          filters:
+            - PreserveHostHeader
+        # 用户服务
+        - id: user
+          uri: lb://user-center-started
+          predicates:
+            - Path=/api-user/**
+          filters:
+            - StripPrefix=1
+        # IM 服务整合 websocket 进行实时推送
+        - id: im-netty
+          uri: lb:ws://im-netty-started
+          predicates:
+          - Path=/api-im/**
+          filters:
+          - StripPrefix=1
+        - id: im-netty-info
+          uri: lb://im-netty-started
+          predicates:
+          - Path=/api-im/info/**
+          filters:
+          - StripPrefix=2
+        # 管理平台服务
+        - id: microservice-platform
+          uri: lb://microservice-platform-started
+          predicates:
+          - Path=/api-platf/**
+          filters:
+          - StripPrefix=1
+        # 管理平台服务整合 websocket 进行实时推送
+        - id: microservice-platform-ws
+          uri: lb:ws://microservice-platform-started
+          predicates:
+          - Path=/api-platf/**
+          filters:
+          - StripPrefix=1
+        - id: file
+          uri: lb://file-center
+          predicates:
+            - Path=/api-file/**
+          filters:
+            - StripPrefix=1
+        - id: log
+          uri: lb://log-center
+          predicates:
+            - Path=/api-log/**
+          filters:
+            - StripPrefix=1
+        - id: generator
+          uri: lb://code-generator
+          predicates:
+            - Path=/api-generator/**
+          filters:
+            - StripPrefix=1
+        - id: search
+          uri: lb://search-center
+          predicates:
+            - Path=/api-search/**
+          filters:
+            - StripPrefix=1
+#    sentinel:
+#      datasource.ds1.nacos:
+#        server-addr: ${his.cloud.nacos.server-addr}
+#        data-id: ${spring.application.name}-sentinel-gw-flow
+#        group-id: DEFAULT_GROUP
+#        ruleType: gw-flow
+#      filter:
+#        enabled: true
+his:
+  cloud:
+    swagger-agg:
+      generate-routes: user,file
+    oauth2:
+      token:
+        store:
+          type: redis
+    security:
+      ignore:
+        # 忽略认证的地址
+        httpUrls: >
+          /api-uaa/oauth/**,
+          /api-uaa/validate/**,
+          /api-uaa/css/**,
+          /api-uaa/images/**,
+          /api-uaa/js/**,
+          /api-user/users-anon/**,
+          /api-user/users-anon/**,
+          /login.html,
+          /user/login,
+          /api-wx/consult/patient/entry/**,
+          /api-wx/consult/doctor/entry/**,
+      auth:
+        urlPermission:
+          #是否开启url级别权限
+          # 注意：
+          # 1、这里不需要开启 URL 认证，因为 VUE 作为前端的主体框架 本身的权限路由交由后端管理
+          # 2、若前端主体框架是 layui + thymeleaf模版引擎，URL由后端控制可以开启 url级别权限
+          enable: false
+          #配置只进行登录认证，不进行 url 权限认证的 api
+          ignoreUrls: >
+            /api-user/user/current,
+            /api-user/roles/current,
+            /api-user/perms/current,
+            /api-log/requestStat
+          #白名单
+          includeClientIds:
+            - "micro-platform-pc"
+            - "wx-doctor-minapp"
+            - "wx-patient-minapp"
+        renew:
+          #是否开启token自动续签（目前只支持redis实现）
+          enable: true
+          #白名单
+          includeClientIds:
+            - "micro-platform-pc"
+            - "wx-doctor-minapp"
+            - "wx-patient-minapp"
+    gateway:
+      #网关动态路由
+      dynamicRoute:
+        enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 1000

@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.oauth2.common.config.SecurityPropertiesConfig,\
+com.baimicro.central.oauth2.common.store.AuthDbTokenStore,\
+com.baimicro.central.oauth2.common.store.AuthRedisTokenStore,\
+com.baimicro.central.oauth2.common.store.AuthJwtTokenStore,\
+com.baimicro.central.oauth2.common.store.ResourcesJwtTokenStore

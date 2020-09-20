@@ -1,0 +1,8 @@
+dependencies {
+    compile project(':component-integration:baimicro-common-core')
+
+    implementation('org.slf4j:slf4j-api')
+    implementation(libs['javax.servlet-api'])
+    implementation("org.springframework:spring-web")
+    implementation('org.springframework.boot:spring-boot-autoconfigure')
+}

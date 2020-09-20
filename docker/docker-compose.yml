@@ -1,0 +1,134 @@
+# docker-compose 部署样例文件
+# docker login -u ap-southeast-1@XSFMSFYAW5J7PYHUC89J -p 1ff5fcd2aa0de1883aaea602a00be9d0b1a4c833d62918c2ffe5d138d67b5913 swr.ap-southeast-1.myhuaweicloud.com
+version: "3.5"
+services:
+  ####################### 微服务网关 ########################################
+  gateway-started:
+    image: swr.ap-southeast-1.myhuaweicloud.com/microservice-central/gateway-started:2.0.1
+    # 指定容器名称
+    container_name: baimicro-gateway-started
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs/application/gateway-started:/logs/application/gateway-started
+      - ./logs/audit:/logs/audit
+      - ./logs/point:/logs/point
+      # 挂载 skywalking 链路追踪目录
+      - ./skywalking-agent:/skywalking-agent
+    # 访问端口
+    ports:
+      - "17001:17001"
+    environment:
+      SW_AGENT_NAME: gateway-started
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: 192.168.1.88:11800
+      SPRING_PROFILES_ACTIVE: pre
+      # 指定时区
+      TZ: "Asia/Shanghai"
+    networks:
+      - custom_net
+  ####################### 授权认证中心 ########################################
+  oauth-server-started:
+    image: swr.ap-southeast-1.myhuaweicloud.com/microservice-central/oauth-server-started:2.0.1
+    # 指定容器名称
+    container_name: baimicro-oauth-server-started
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs/application/oauth-server-started:/logs/application/oauth-server-started
+      - ./logs/audit:/logs/audit
+      - ./logs/point:/logs/point
+      # 挂载 skywalking 链路追踪目录
+      - ./skywalking-agent:/skywalking-agent
+    # 访问端口
+    ports:
+      - "17002:17002"
+    environment:
+      SW_AGENT_NAME: oauth-server-started
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: 192.168.1.88:11800
+      SPRING_PROFILES_ACTIVE: pre
+      # 指定时区
+      TZ: "Asia/Shanghai"
+    networks:
+      - custom_net
+  ####################### 用户中心 ########################################
+  user-center-started:
+    image: swr.ap-southeast-1.myhuaweicloud.com/microservice-central/user-center-started:2.0.1
+    # 指定容器名称
+    container_name: baimicro-user-center-started
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs/application/user-center-started:/logs/application/user-center-started
+      - ./logs/audit:/logs/audit
+      - ./logs/point:/logs/point
+      # 挂载 skywalking 链路追踪目录
+      - ./skywalking-agent:/skywalking-agent
+    # 访问端口
+    ports:
+      - "17000:17000"
+    environment:
+      SW_AGENT_NAME: user-center-started
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: 192.168.1.88:11800
+      SPRING_PROFILES_ACTIVE: pre
+      # 指定时区
+      TZ: "Asia/Shanghai"
+    networks:
+      - custom_net
+  ####################### 微服务平台用户服务 ########################################
+  user-platform-server:
+    image: swr.ap-southeast-1.myhuaweicloud.com/microservice-central/user-platform-server:2.0.1
+    # 指定容器名称
+    container_name: baimicro-user-platform-server
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs/application/user-platform-server:/logs/application/user-platform-server
+      - ./logs/audit:/logs/audit
+      - ./logs/point:/logs/point
+      # 挂载 skywalking 链路追踪目录
+      - ./skywalking-agent:/skywalking-agent
+    # 访问端口
+    ports:
+      - "20881:20881"
+      - "18080:18080"
+    environment:
+      SW_AGENT_NAME: user-platform-server
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: 192.168.1.88:11800
+      SPRING_PROFILES_ACTIVE: pre
+      # 指定时区
+      TZ: "Asia/Shanghai"
+    networks:
+      - custom_net
+  ####################### 微服务平台启动服务 ########################################
+  microservice-platform-started:
+    image: swr.ap-southeast-1.myhuaweicloud.com/microservice-central/microservice-platform-started:2.0.1
+    # 指定容器名称
+    container_name: baimicro-microservice-platform-started
+    # 重启机制
+    restart: on-failure
+    volumes:
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs/application/microservice-platform-started:/logs/application/microservice-platform-started
+      - ./logs/audit:/logs/audit
+      - ./logs/point:/logs/point
+      # 挂载 skywalking 链路追踪目录
+      - ./skywalking-agent:/skywalking-agent
+    # 访问端口
+    ports:
+      - "28001:28001"
+    environment:
+      SW_AGENT_NAME: microservice-platform-started
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: 192.168.1.88:11800
+      SPRING_PROFILES_ACTIVE: pre
+      # 指定时区
+      TZ: "Asia/Shanghai"
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    external:
+      name: microservice-net

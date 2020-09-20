@@ -1,0 +1,115 @@
+version: '3.5'
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    container_name: es-node-01
+    environment:
+      # 集群名称
+      - cluster.name=baimicro-es-cluster
+      # 节点名称
+      - node.name=es-node-01
+      # 是否主节点，默认 true
+      - node.master=true
+      # 是否作为数据存储节点，默认 true
+      - node.data=true
+      # 开启 cors 以便使用 Head 插件与 Kibana
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      # 可以访问 ES 集群的 IP，0.0.0.0表示不绑定
+      - network.bind_host=0.0.0.0
+      # ES 集群相互通信的 IP，0.0.0.0 默认本地网络搜索
+      - network.publish_host=0.0.0.0
+      # 手动指定集群各个节点 TCP 数据交互地址(IP:PORT)，用于节点侦听和故障切换，默认缺省9300端口
+      - discovery.seed_hosts=es-node-01,es-node-02,es-node-03
+      # 配置集群节点，多个地址逗号隔开
+      - cluster.initial_master_nodes=es-node-01,es-node-02,es-node-03
+      # 锁定进程的物理内存地址避免交换（swapped）来提高性能
+      - bootstrap.memory_lock=true
+      # JVM 内存大小配置
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    # 跟随 Docker 重启
+    restart: always
+    # volumes 配置由（:）分隔的三个字段组成，<卷名>:<容器路径>:<选项列表>
+    # <卷名> ： 第一个字段，主机上的文件或目录
+    # <容器路径> ： 第二个字段，容器中的文件或目录
+    # <选项列表> ： 第三个字段，可选，且用逗号分隔，如：ro，consistent，delegated，cached，z 和 Z
+    volumes:
+      - /home/data/elasticsearch/logs/es-node-01:/usr/share/elasticsearch/logs
+      - /home/data/elasticsearch/data/es-node-01:/usr/share/elasticsearch/data
+      - /home/data/elasticsearch/plugins/es-node-01:/usr/share/elasticsearch/plugins
+      - /home/data/elasticsearch/config/es-node-01/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /home/data/elasticsearch/config/es-node-01/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+    ports:
+      - 9200:9200
+    networks:
+      - custom_net
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    container_name: es-node-02
+    environment:
+      - cluster.name=baimicro-es-cluster
+      - node.name=es-node-02
+      - node.master=true
+      - node.data=true
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - network.bind_host=0.0.0.0
+      - network.publish_host=0.0.0.0
+      - discovery.seed_hosts=es-node-01,es-node-02,es-node-03
+      - cluster.initial_master_nodes=es-node-01,es-node-02,es-node-03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    volumes:
+      - /home/data/elasticsearch/logs/es-node-02:/usr/share/elasticsearch/logs
+      - /home/data/elasticsearch/data/es-node-02:/usr/share/elasticsearch/data
+      - /home/data/elasticsearch/plugins/es-node-02:/usr/share/elasticsearch/plugins
+      - /home/data/elasticsearch/config/es-node-02/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /home/data/elasticsearch/config/es-node-02/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+    ports:
+      - 9201:9200
+    networks:
+      - custom_net
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    container_name: es-node-03
+    environment:
+      - cluster.name=baimicro-es-cluster
+      - node.name=es-node-03
+      - node.master=true
+      - node.data=true
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - network.bind_host=0.0.0.0
+      - network.publish_host=0.0.0.0
+      - discovery.seed_hosts=es-node-01,es-node-02,es-node-03
+      - cluster.initial_master_nodes=es-node-01,es-node-02,es-node-03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    volumes:
+      - /home/data/elasticsearch/logs/es-node-03:/usr/share/elasticsearch/logs
+      - /home/data/elasticsearch/data/es-node-03:/usr/share/elasticsearch/data
+      - /home/data/elasticsearch/plugins/es-node-03:/usr/share/elasticsearch/plugins
+      - /home/data/elasticsearch/config/es-node-03/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /home/data/elasticsearch/config/es-node-03/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+    ports:
+      - 9202:9200
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    external:
+      name: elasticsearch-net

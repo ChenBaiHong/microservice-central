@@ -1,0 +1,61 @@
+# https://github.com/elastic/beats/blob/master/filebeat/filebeat.reference.yml
+http:
+  #启用HTTP端点以允许从外部收集监视数据
+  enabled: true
+  #默认情况下，metrics 在端口5066上公开。
+  port: 5067
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+filebeat.modules:
+  # 系统模块收集并解析由基于 Unix / Linux 的常见发行版的系统日志服务创建的日志。
+  - module: system
+    syslog:
+      enabled: true
+    auth:
+      enabled: true
+  # auditd 模块从审计守护程序（auditd）收集并解析日志。
+  - module: auditd
+    log:
+      # CentOS 不需要我们安装审核系统，它是标准配置。但 ubantu 可能需要安装 auditd
+      enabled: true
+#========================== Filebeat autodiscover ==============================
+# 有关如何运行 Apache2 Filebeat模块的信息，请参见以下URL： # https://www.elastic.co/guide/en/beats/filebeat/current/running-on-docker.html
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      # https://www.elastic.co/guide/en/beats/filebeat/current/configuration-autodiscover-hints.html
+      # 此URL包含有关多行日志的说明
+      hints.enabled: true
+#================================ Processors ===================================
+processors:
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_locale:
+      format: offset
+  - add_host_metadata:
+      netinfo.enabled: true
+
+#========================== Elasticsearch output ===============================
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["http://es-node-01:9200", "http://es-node-02:9200" , "http://es-node-03:9200"]
+  username: "elastic"
+  password: "XbneuJCsLxBf6SSz3BKa"
+
+#============================== Dashboards =====================================
+setup.dashboards:
+  enabled: true
+
+#============================== Kibana =========================================
+setup.kibana:
+  host: "kibana:5601"
+  username: "elastic"
+  password: "XbneuJCsLxBf6SSz3BKa"
+
+#============================== Xpack Monitoring ===============================
+# 禁用 Filebeat 监视指标的默认集合
+xpack.monitoring:
+  enabled: false
+  elasticsearch:

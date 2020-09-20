@@ -1,0 +1,37 @@
+rootProject.name = 'microservice-central'
+
+include 'central-config'
+include 'oauth-server-started'
+include 'gateway-started'
+include 'im-netty-started'
+
+include ':component-integration:baimicro-swagger2-spring-boot-starter',
+        ':component-integration:baimicro-log-spring-boot-starter',
+        ':component-integration:baimicro-sentinel-spring-boot-starter',
+        ':component-integration:baimicro-ribbon-spring-boot-starter',
+        ':component-integration:baimicro-redis-spring-boot-starter',
+        ':component-integration:baimicro-auth-client-spring-boot-starter',
+        ':component-integration:baimicro-auth-security-spring-boot-starter',
+        ':component-integration:baimicro-common-spring-boot-starter',
+        ':component-integration:baimicro-db-spring-boot-starter',
+        ':component-integration:baimicro-elasticsearch-spring-boot-starter',
+        ':component-integration:baimicro-netty-websocket-spring-boot-starter',
+        ':component-integration:baimicro-websocket-spring-boot-starter',
+        ':component-integration:baimicro-common-util',
+        ':component-integration:baimicro-common-core',
+        ':component-integration:baimicro-common-pojo'
+
+include ':microservice-platform:base-platform-pojo',
+        ':microservice-platform:base-platform-component',
+        ':microservice-platform:api-platform-system',
+        ':microservice-platform:microservice-platform-started'
+
+include ':user-center:user-api',
+        ':user-center:user-center-started',
+        ':user-center:user-platform-server'
+
+include ':monitor-center:scaner-logger-started',
+        ':monitor-center:scaner-gateway-started'
+
+include ':search-center:search-client',
+        ':search-center:search-server'

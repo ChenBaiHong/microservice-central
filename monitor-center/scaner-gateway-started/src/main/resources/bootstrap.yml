@@ -1,0 +1,16 @@
+server:
+  port: 17003
+
+spring:
+  application:
+    name: scaner-gateway-started
+  security:
+    user:
+      name: 'admin'
+      password: 'admin'
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          user.name: ${spring.security.user.name}
+          user.password: ${spring.security.user.password}

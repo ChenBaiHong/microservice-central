@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${his.cloud.datasource.ip}:33306/micro-platform?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false
+    username: ${his.cloud.datasource.username}
+    password: ${his.cloud.datasource.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    user:
+      name: admin
+      password: 123456
+#mybatis plus 设置
+mybatis-plus:
+  # 指定映射文件的位置
+  mapper-locations: classpath*:com/baimicro/central/**/mapper/xml/*Mapper.xml
+  # 用于搜索类型别名的包。 （包分隔符是“，; \ t \ n”）
+  type-aliases-package: "com.baimicro.central.platform.pojo.entity,com.baimicro.central.platform.pojo.model.platform,com.baimicro.central.platform.pojo.vo"
+  global-config:
+    db-config:
+      id-type: auto
+his:
+  cloud:
+    api-uaa:
+      url: http://127.0.0.1:17001/api-uaa/oauth
+    logout-uri: ${his.cloud.api-uaa.url}/remove/token?redirect_uri=http://127.0.0.1:28001&access_token=
+# 配置当前应用用户单点登陆
+security:
+  oauth2:
+    sso:
+      login-path: /singleLogin
+    client:
+      client-id: micro-platform-pc
+      client-secret: micro-platform-pc
+      access-token-uri: ${his.cloud.api-uaa.url}/token
+      user-authorization-uri: ${his.cloud.api-uaa.url}/authorize
+    resource:
+      token-info-uri: ${his.cloud.api-uaa.url}/check_token

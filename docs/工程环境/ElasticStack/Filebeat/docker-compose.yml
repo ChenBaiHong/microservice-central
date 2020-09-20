@@ -1,0 +1,36 @@
+version: "3.5"
+services:
+  # 如何调整Elastic Beat的性能
+  # https://www.elastic.co/blog/how-to-tune-elastic-beats-performance-a-practical-example-with-batch-size-worker-count-and-more?blade=tw&hulk=social
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.8.0
+    container_name: docker-filebeat
+    # 需要覆盖用户，以便我们可以访问日志文件和docker.sock
+    user: root
+    networks:
+      - elastic
+    restart: on-failure
+    volumes:
+      - /home/data/filebeat/data:/usr/share/filebeat/data
+      - /home/data/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      # 主机和容器 socket 网络连通
+      - /var/run/docker.sock:/var/run/docker.sock
+      # filebeat 加载所需容器的日志路径
+      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+      # filebeat 需要此功能以加载系统和身份验证模块的日志
+      - /var/log/:/var/log/:ro
+      # filebeat 需要此功能来加载已审计模块的日志。
+      - /var/log/audit/:/var/log/audit/:ro
+    environment:
+      - ELASTICSEARCH_HOST=http://es-node-01:9200
+      - KIBANA_HOST=http://kibana:5601
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=XbneuJCsLxBf6SSz3BKa
+    ports:
+      - 5067:5067
+    # disable strict permission checks
+    command: ["--strict.perms=false"]
+networks:
+  elastic:
+    external: true
+    name: elasticsearch-net

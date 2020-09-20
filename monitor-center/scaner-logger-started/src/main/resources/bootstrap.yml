@@ -1,0 +1,6 @@
+server:
+  port: 17200
+
+spring:
+  application:
+    name: log-center

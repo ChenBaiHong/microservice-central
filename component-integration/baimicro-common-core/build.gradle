@@ -1,0 +1,17 @@
+dependencies {
+    // 编译并打包进 jar 中，不提供依赖传递
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign')
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+
+    implementation libs['banner']
+    implementation(libs['javax.servlet-api'])
+    implementation(libs['spring-security-oauth2'])
+    implementation libs['spring-social-security']
+    implementation(libs['mybatis-plus'])
+
+    // 不只编译 并也打包进 jar 中，也提供依赖传递
+    compile(project(':component-integration:baimicro-common-util'))
+    compile(project(':component-integration:baimicro-log-spring-boot-starter'))
+    compile libs['httpclient']
+    compile('com.google.code.gson:gson')
+}

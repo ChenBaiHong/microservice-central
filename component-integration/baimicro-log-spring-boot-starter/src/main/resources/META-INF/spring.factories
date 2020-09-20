@@ -1,0 +1,8 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.baimicro.central.log.config.TtlMDCAdapterInitializer
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.log.config.LogAutoConfigure,\
+com.baimicro.central.log.service.impl.LoggerAuditServiceImpl,\
+com.baimicro.central.log.service.impl.DbAuditServiceImpl,\
+com.baimicro.central.log.aspect.AuditLogAspect

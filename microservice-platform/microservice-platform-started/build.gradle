@@ -1,0 +1,45 @@
+apply plugin: "org.springframework.boot"
+apply plugin: "com.bmuschko.docker-spring-boot-application"
+
+def archiveName = 'microservice-platform-started'
+def version = "${ver.baimicro.rootVersion}"
+
+bootJar {
+    archiveBaseName = archiveName
+    archiveVersion = version
+    manifest {
+        attributes 'Start-Class': 'com.baimicro.central.MicroPlatformApplication'
+    }
+}
+dependencies {
+    implementation project(':central-config')
+    implementation(project(':component-integration:baimicro-auth-security-spring-boot-starter'))
+    implementation(project(':component-integration:baimicro-ribbon-spring-boot-starter'))
+    implementation(project(':component-integration:baimicro-sentinel-spring-boot-starter'))
+    implementation(project(':component-integration:baimicro-db-spring-boot-starter'))
+    implementation(project(':component-integration:baimicro-redis-spring-boot-starter'))
+    implementation(project(':microservice-platform:api-platform-system'))
+    implementation(project(':microservice-platform:base-platform-pojo'))
+
+    implementation('mysql:mysql-connector-java')
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation libs['commons-pool2']
+}
+docker {
+    registryCredentials {
+        url = "${DOCKER_HUB_URL}"
+        username = "${DOCKER_USERNAME}"
+        password = "${DOCKER_PASSWORD}"
+    }
+    springBootApplication {
+        maintainer = 'baihoo.chen "baihoo.chen@hotmail.com"'
+        baseImage = 'swr.ap-southeast-1.myhuaweicloud.com/baihoo/oraclejdk:8u261'
+        ports = [28001]
+        images = ["${DOCKER_DOMAIN}/microservice-central/${archiveName}:${version}"]
+        jvmArgs = ['-javaagent:/skywalking-agent/skywalking-agent.jar','-server', '-XX:MetaspaceSize=128m', '-XX:MaxMetaspaceSize=128m', '-Xms1024m', '-Xmx1024m', '-Xmn256m', '-Xss256k', '-XX:SurvivorRatio=8','-XX:+UseConcMarkSweepGC', '-XX:+PrintGCDetails']
+    }
+    dockerCreateDockerfile {
+        environmentVariable 'SPRING_PROFILES_ACTIVE', SRPING_PROFILE
+    }
+}

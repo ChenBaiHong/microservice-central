@@ -1,0 +1,25 @@
+# sonarqube docker-compose.yml 配置
+version: '3.5'
+services:
+  sonarqube:
+    image: sonarqube:6.7.5
+    container_name: sonarqube
+    restart: on-failure
+    ports:
+      - 9001:9000
+      - 9002:9092
+    volumes:
+      - /home/data/sonar/conf:/opt/sonarqube/conf
+      - /home/data/sonar/data:/opt/sonarqube/data
+      - /home/data/sonar/logs:/opt/sonarqube/logs
+      - /home/data/sonar/extensions:/opt/sonarqube/extensions
+    environment:
+      SONARQUBE_JDBC_USERNAME: "root"
+      SONARQUBE_JDBC_PASSWORD: "baihoo!@#321"
+      SONARQUBE_JDBC_URL: "jdbc:mysql://docker-mysql:3306/sonarqube?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance&useSSL=false"
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    external:
+      name: overlay-net

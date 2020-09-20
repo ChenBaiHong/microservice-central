@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.redis.RedisAutoConfigure,\
+com.baimicro.central.redis.lock.RedissonDistributedLock,\
+com.baimicro.central.redis.template.RedisRepository
+

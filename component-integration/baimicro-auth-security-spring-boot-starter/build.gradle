@@ -1,0 +1,11 @@
+dependencies {
+
+    compile('org.springframework.cloud:spring-cloud-starter-oauth2')
+
+    implementation(project(":component-integration:baimicro-redis-spring-boot-starter"))
+    implementation(project(':component-integration:baimicro-common-core'))
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+
+    compileOnly('org.springframework.cloud:spring-cloud-context')
+    compileOnly(libs['javax.servlet-api'])
+}

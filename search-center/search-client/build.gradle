@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':component-integration:baimicro-ribbon-spring-boot-starter')
+    compile project(':component-integration:baimicro-sentinel-spring-boot-starter')
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign')
+}

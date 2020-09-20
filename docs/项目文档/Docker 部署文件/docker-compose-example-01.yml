@@ -1,0 +1,24 @@
+# docker-compose 部署样例文件
+version: "3"
+services:
+  springboot-gateway:
+    image: swr.ap-southeast-1.myhuaweicloud.com/baihoo/oraclejdk:8u261
+    # 指定容器名称
+    container_name: gateway-started
+    # 重启机制
+    restart: always
+    volumes:
+      # 本地jar包路径
+      - ./gateway-started.jar:/gateway-started.jar
+      # 挂载日志 -v A:B ,A指宿主机位置，B指容器位置
+      - ./logs:/logs
+      # 指定容器时间为宿主机时间
+      - /etc/localtime:/etc/localtime
+    # 访问端口
+    ports:
+      - "17001:17001"
+    environment:
+      # 指定时区
+      - TZ="Asia/Shanghai"
+    #启动容器后执行的命令
+    entrypoint: java -server -Xms2048m -Xmx2048m -Xmn256m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar -Dserver.port=17001 -Dspring.profiles.active=dev gateway-started.jar

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baimicro.central.user.mapper.PlatfUserMapper">
+    <select id="selectByUsername" resultType="com.baimicro.central.common.model.AppUser">
+        <![CDATA[
+        SELECT D.id       as id,
+               D.username as username,
+               D.realname as realName,
+               D.password as password,
+               D.avatar   as headImgUrl,
+               D.sex      as sex,
+               D.phone    as mobile,
+               D.enabled  as enabled
+        FROM platf_user D
+        where D.username = #{username}
+        ]]>
+    </select>
+
+    <select id="selectByMobile" resultType="com.baimicro.central.common.model.AppUser">
+        <![CDATA[
+        SELECT D.id       as id,
+               D.username as username,
+               D.realname as realName,
+               D.password as password,
+               D.avatar   as headImgUrl,
+               D.sex      as sex,
+               D.phone    as mobile,
+               D.enabled  as enabled
+        FROM platf_user D
+        where D.phone = #{mobile}
+        ]]>
+    </select>
+
+    <select id="selectByOpenId" resultType="com.baimicro.central.common.model.AppUser">
+
+    </select>
+</mapper>

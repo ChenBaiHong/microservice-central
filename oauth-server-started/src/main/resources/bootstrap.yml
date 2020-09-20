@@ -1,0 +1,16 @@
+server:
+  port: 17002
+  servlet:
+    session:
+      cookie:
+        name: OAUTH2SESSION
+
+spring:
+  application:
+    name: oauth-server-started
+
+#encrypt:
+#  key-store:
+#    location: classpath:his.jks
+#    secret:
+#    alias:

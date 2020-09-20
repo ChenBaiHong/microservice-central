@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.baimicro.central.ribbon.RibbonAutoConfigure,\
+com.baimicro.central.ribbon.FeignAutoConfigure,\
+com.baimicro.central.ribbon.RestTemplateAutoConfigure,\
+com.baimicro.central.ribbon.filter.LbIsolationFilter,\
+com.baimicro.central.ribbon.LbIsolationAutoConfigure
